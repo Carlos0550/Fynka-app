@@ -1,0 +1,13 @@
+.deliver-icon {
+    width: 20px; 
+    height: 20px; 
+}
+
+.st0 {
+    fill: none;
+    stroke: #000000; /* Color de trazo */
+    stroke-width: 2; /* Grosor del trazo */
+    stroke-linecap: round; /* Tipo de terminación */
+    stroke-linejoin: round; /* Tipo de unión */
+    stroke-miterlimit: 10; /* Limite de mitras */
+}
