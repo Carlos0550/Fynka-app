@@ -14,7 +14,7 @@ export const useAppContext = () => {
 export const AppContextProvider = ({ children }) => {
     const registerBusiness = async (registerData) => {
         try {
-            const response = await fetch(`${baseUrl.api}/create-business`, {
+            const response = await fetch(`${baseUrl.api}/create-administrator`, {
                 method: "POST",
                 body: registerData
             })
@@ -69,6 +69,7 @@ export const AppContextProvider = ({ children }) => {
             };
             if (!response.ok) throw new Error(data.msg)
             message.success(`${data.msg}`)
+        console.log(data)
             return true
         } catch (error) {
             console.log(error)
