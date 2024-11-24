@@ -46,52 +46,62 @@ export const AppContextProvider = ({ children }) => {
 
     const [loginUserData, setLoginUserData] = useState(null)
     const login = async (loginData) => {
-        try {
-            const response = await fetch(`${baseUrl.api}/login-user`, {
-                method: "POST",
-                body: loginData
-            })
+        let attempts = 0
+        const maxAttempts = 2
+        const delay = (ms) => Promise((resolve) => setTimeout(resolve, ms))
 
-            const data = await response.json()
-            if (response.status === 404) {
-                notification.error({
-                    message: "Usuario o contraseña inválido",
-                    duration: 3,
-                    pauseOnHover: false,
-                    showProgress: true
-                });
-                return false;
-            };
-            if (response.status === 401) {
-                notification.error({
-                    message: data.msg,
-                    duration: 3,
-                    pauseOnHover: false,
-                    showProgress: true
-                });
-                return false;
-            };
-            if (!response.ok) throw new Error(data.msg)
-            message.success(`${data.msg}`)
-            setLoginUserData(data.usrData)
-            const dataUser = JSON.parse(localStorage.getItem("userdata"))
-            if (!dataUser) {
-                localStorage.setItem("userdata", JSON.stringify(data.usrData));
-            } else {
-                localStorage.removeItem("userdata");
-                localStorage.setItem("userdata", JSON.stringify(data.usrData));
+        while (attempts < maxAttempts) {
+            try {
+                const response = await fetch(`${baseUrl.api}/login-user`, {
+                    method: "POST",
+                    body: loginData
+                })
+
+                const data = await response.json()
+                if (response.status === 404) {
+                    notification.error({
+                        message: "Usuario o contraseña inválido",
+                        duration: 3,
+                        pauseOnHover: false,
+                        showProgress: true
+                    });
+                    return false;
+                };
+                if (response.status === 401) {
+                    notification.error({
+                        message: data.msg,
+                        duration: 3,
+                        pauseOnHover: false,
+                        showProgress: true
+                    });
+                    return false;
+                };
+                if (!response.ok) throw new Error(data.msg)
+                message.success(`${data.msg}`)
+                setLoginUserData(data.usrData)
+                const dataUser = JSON.parse(localStorage.getItem("userdata"))
+                if (!dataUser) {
+                    localStorage.setItem("userdata", JSON.stringify(data.usrData));
+                } else {
+                    localStorage.removeItem("userdata");
+                    localStorage.setItem("userdata", JSON.stringify(data.usrData));
+                }
+                return true
+            } catch (error) {
+                console.log(error)
+                if (attempts >= maxAttempts) {
+                    notification.error({
+                        message: "No se pudo procesar la solicitud",
+                        description: error.message || apiResponses.error,
+                        duration: 4,
+                        pauseOnHover: false
+                    });
+
+                    return false
+                }
+
+                await delay(2000)
             }
-            return true
-        } catch (error) {
-            console.log(error)
-            notification.error({
-                message: "No se pudo procesar la solicitud",
-                description: error.message || apiResponses.error,
-                duration: 4,
-                pauseOnHover: false
-            });
-
-            return false
         }
     }
 
@@ -100,38 +110,49 @@ export const AppContextProvider = ({ children }) => {
         if (!alreadyVerified.current) {
             const userData = localStorage.getItem("userdata");
             alreadyVerified.current = true
-            try {
-                if (userData) {
-                    const parseData = JSON.parse(userData);
-                    if (!parseData.nombre_usuario || !parseData.email) {
-                        throw new Error("Datos incompletos en localStorage. Por favor, inicie sesión nuevamente.");
+
+            let attempts = 0
+            const maxAttempts = 2
+            const delai = (ms) => new Promise((resolve) => setTimeout(resolve, ms))
+
+            while (attempts < maxAttempts) {
+                try {
+                    if (userData) {
+                        const parseData = JSON.parse(userData);
+                        if (!parseData.nombre_usuario || !parseData.email) {
+                            throw new Error("No se pudo verificar su sesión, Por favor, inicie sesión nuevamente.");
+                        }
+
+                        const response = await fetch(
+                            `${baseUrl.api}/verifyAuthUser?username=${encodeURIComponent(parseData.nombre_usuario)}&email=${encodeURIComponent(parseData.email)}`
+                        );
+
+                        if (!response.ok) {
+                            const errorData = await response.json();
+                            throw new Error(errorData?.msg || "No se pudo verificar su sesión, Por favor, inicie sesión nuevamente.");
+                        }
+                        if (!loginUserData) setLoginUserData(userData)
+                        message.success("Bienvenido nuevamente.");
+                        return true
+                    }
+                } catch (error) {
+                    console.error(error);
+                    attempts += 1
+
+                    if (attempts >= maxAttempts) {
+                        navigate("/")
+                        notification.error({
+                            message: error.status === 401 ? "Sesión expirada" : "Error al intentar iniciar sesión",
+                            description: error.message || apiResponses.error,
+                            duration: 5,
+                            showProgress: true,
+                            pauseOnHover: false,
+                        });
+                        return false
                     }
 
-                    const response = await fetch(
-                        `${baseUrl.api}/verifyAuthUser?username=${encodeURIComponent(parseData.nombre_usuario)}&email=${encodeURIComponent(parseData.email)}`
-                    );
-
-                    if (!response.ok) {
-                        const errorData = await response.json();
-                        throw new Error(errorData?.msg || "Error desconocido al verificar autenticación.");
-                    }
-                    if (!loginUserData) setLoginUserData(userData)
-                    message.success("Bienvenido nuevamente.");
-                    return true
-                } else {
-                    throw new Error("Datos incompletos en localStorage. Por favor, inicie sesión nuevamente.");
+                    await delai(2000)
                 }
-            } catch (error) {
-                console.error(error);
-                navigate("/")
-                notification.error({
-                    message: error.status === 401 ? "Sesión expirada" : "Error al intentar iniciar sesión",
-                    description: error.message || apiResponses.error,
-                    duration: 5,
-                    showProgress: true,
-                    pauseOnHover: false,
-                });
-                return false
             }
         }
     };
