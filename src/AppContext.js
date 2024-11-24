@@ -44,66 +44,69 @@ export const AppContextProvider = ({ children }) => {
         }
     }
 
-    const [loginUserData, setLoginUserData] = useState(null)
+    const [loginUserData, setLoginUserData] = useState(null);
+
     const login = async (loginData) => {
-        let attempts = 0
-        const maxAttempts = 2
-        const delay = (ms) => Promise((resolve) => setTimeout(resolve, ms))
+        let attempts = 0;
+        const maxAttempts = 2; 
+        const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
         while (attempts < maxAttempts) {
             try {
                 const response = await fetch(`${baseUrl.api}/login-user`, {
                     method: "POST",
-                    body: loginData
-                })
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify(loginData), 
+                });
 
-                const data = await response.json()
+                const data = await response.json();
+
                 if (response.status === 404) {
                     notification.error({
                         message: "Usuario o contraseña inválido",
                         duration: 3,
                         pauseOnHover: false,
-                        showProgress: true
+                        showProgress: true,
                     });
                     return false;
-                };
+                }
+
                 if (response.status === 401) {
                     notification.error({
                         message: data.msg,
                         duration: 3,
                         pauseOnHover: false,
-                        showProgress: true
+                        showProgress: true,
                     });
                     return false;
-                };
-                if (!response.ok) throw new Error(data.msg)
-                message.success(`${data.msg}`)
-                setLoginUserData(data.usrData)
-                const dataUser = JSON.parse(localStorage.getItem("userdata"))
-                if (!dataUser) {
-                    localStorage.setItem("userdata", JSON.stringify(data.usrData));
-                } else {
-                    localStorage.removeItem("userdata");
-                    localStorage.setItem("userdata", JSON.stringify(data.usrData));
                 }
-                return true
+
+                if (!response.ok) throw new Error(data.msg);
+
+                message.success(`${data.msg}`);
+                setLoginUserData(data.usrData);
+
+                localStorage.setItem("userdata", JSON.stringify(data.usrData));
+                return true; 
+
             } catch (error) {
-                console.log(error)
+                attempts += 1;
+                console.error(`Intento ${attempts} fallido:`, error.message);
+
                 if (attempts >= maxAttempts) {
                     notification.error({
                         message: "No se pudo procesar la solicitud",
-                        description: error.message || apiResponses.error,
+                        description: error.message || "Error desconocido",
                         duration: 4,
-                        pauseOnHover: false
+                        pauseOnHover: false,
                     });
-
-                    return false
+                    return false;
                 }
 
-                await delay(2000)
+                await delay(2000);
             }
-        }
-    }
+        };
+    };
 
     const alreadyVerified = useRef(false)
     const verifyAuthUser = async () => {
