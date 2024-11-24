@@ -1,4 +1,4 @@
 export const baseUrl={
-    api: "http://localhost:4000",
+    api: "https://fynka-server-production.up.railway.app",
     frontApi: "http://localhost:3000"
 }
