@@ -33,7 +33,7 @@ function Login({ changeOption }) {
 
     const sendValues = async (e) => {
         e.preventDefault()
-
+        setSendingValues(true)
         try {
             if (useUsername && values.username.trim() === "") throw new Error("El nombre de usuario es requerido")
             if (!useUsername && values.email.trim() === "") throw new Error("El email es requerido")
@@ -44,7 +44,7 @@ function Login({ changeOption }) {
             for (const key in values) {
                 formData.append(key, values[key])
             }
-            setSendingValues(false)
+            
             const result = await login(formData)
 
             if (result) {
