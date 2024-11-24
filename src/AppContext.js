@@ -44,67 +44,63 @@ export const AppContextProvider = ({ children }) => {
         }
     }
 
-    const [loginUserData, setLoginUserData] = useState(null);
-
+    const [loginUserData, setLoginUserData] = useState(null)
     const login = async (loginData) => {
-        let attempts = 0;
-        const maxAttempts = 2; 
-        const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+        const maxAttempts = 2
+        let attemps = 0
+        const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms))
 
-        while (attempts < maxAttempts) {
+        while (attemps <= maxAttempts) {
+            attemps += 1
             try {
                 const response = await fetch(`${baseUrl.api}/login-user`, {
                     method: "POST",
-                    headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify(loginData), 
-                });
+                    body: loginData
+                })
 
-                const data = await response.json();
-
+                const data = await response.json()
                 if (response.status === 404) {
                     notification.error({
                         message: "Usuario o contraseña inválido",
                         duration: 3,
                         pauseOnHover: false,
-                        showProgress: true,
+                        showProgress: true
                     });
                     return false;
-                }
-
+                };
                 if (response.status === 401) {
                     notification.error({
                         message: data.msg,
                         duration: 3,
                         pauseOnHover: false,
-                        showProgress: true,
+                        showProgress: true
                     });
                     return false;
+                };
+                if (!response.ok) throw new Error(data.msg)
+                message.success(`${data.msg}`)
+                setLoginUserData(data.usrData)
+                const dataUser = JSON.parse(localStorage.getItem("userdata"))
+                if (!dataUser) {
+                    localStorage.setItem("userdata", JSON.stringify(data.usrData));
+                } else {
+                    localStorage.removeItem("userdata");
+                    localStorage.setItem("userdata", JSON.stringify(data.usrData));
                 }
-
-                if (!response.ok) throw new Error(data.msg);
-
-                message.success(`${data.msg}`);
-                setLoginUserData(data.usrData);
-
-                localStorage.setItem("userdata", JSON.stringify(data.usrData));
-                return true; 
-
+                return true
             } catch (error) {
-                attempts += 1;
-                console.error(`Intento ${attempts} fallido:`, error.message);
-
-                if (attempts >= maxAttempts) {
+                console.log(error)
+                if (attemps >= maxAttempts) {
                     notification.error({
                         message: "No se pudo procesar la solicitud",
-                        description: error.message || "Error desconocido",
+                        description: error.message || apiResponses.error,
                         duration: 4,
-                        pauseOnHover: false,
+                        pauseOnHover: false
                     });
-                    return false;
+                    return false
                 }
-
-                await delay(2000);
-            }
+            };
+            await delay(3000)
         };
     };
 
@@ -114,11 +110,13 @@ export const AppContextProvider = ({ children }) => {
             const userData = localStorage.getItem("userdata");
             alreadyVerified.current = true
 
-            let attempts = 0
             const maxAttempts = 2
-            const delai = (ms) => new Promise((resolve) => setTimeout(resolve, ms))
+            let attemps = 0
+            const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms))
 
-            while (attempts < maxAttempts) {
+            while (attemps < maxAttempts) {
+                attemps += 1
+                console.log("Me ejecuto")
                 try {
                     if (userData) {
                         const parseData = JSON.parse(userData);
@@ -137,13 +135,14 @@ export const AppContextProvider = ({ children }) => {
                         if (!loginUserData) setLoginUserData(userData)
                         message.success("Bienvenido nuevamente.");
                         return true
+                    }else{
+                        console.log("No hay nada en el local storage, termina el bucle")
+                        break;
                     }
                 } catch (error) {
                     console.error(error);
-                    attempts += 1
-
-                    if (attempts >= maxAttempts) {
-                        navigate("/")
+                    navigate("/")
+                    if (attemps >= maxAttempts) {
                         notification.error({
                             message: error.status === 401 ? "Sesión expirada" : "Error al intentar iniciar sesión",
                             description: error.message || apiResponses.error,
@@ -153,9 +152,8 @@ export const AppContextProvider = ({ children }) => {
                         });
                         return false
                     }
-
-                    await delai(2000)
                 }
+                await delay(3000)
             }
         }
     };
