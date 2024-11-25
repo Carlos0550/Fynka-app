@@ -1,0 +1,33 @@
+.sucursales-p{
+    color:#323232;
+}
+
+#sucursales__wrapper{
+    display: flex;
+    flex-direction: column;
+    margin-top: 1rem;
+}
+
+#sucursales-mix{
+    display: flex;
+    justify-content: space-between;
+}
+
+#btn-add-sucursal{
+    background-color: black;
+    border: none;
+    border-radius: 5px;
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: .5rem;
+    gap: .2rem;
+    cursor: pointer;
+    transition: all 150ms ease-in-out;
+}
+
+#btn-add-sucursal:hover{
+    transform: translateY(-5px);
+    font-weight: bold;
+}
