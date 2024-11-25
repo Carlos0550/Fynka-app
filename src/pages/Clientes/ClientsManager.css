@@ -1,0 +1,28 @@
+
+
+#buttons-box{
+    display: flex;
+    justify-content: space-between;
+}
+
+.btn-search-client{
+    max-width: 350px;
+}
+
+#btn-create-client{
+    background-color: black;
+    border: none;
+    border-radius: 5px;
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: .5rem;
+    gap: .2rem;
+    cursor: pointer;
+    transition: all 150ms ease-in-out;
+}
+#btn-create-client:hover{
+    transform: translateY(-5px);
+    font-weight: bold;
+}
