@@ -20,9 +20,9 @@ function Login({ changeOption }) {
     const [useUsername, setUseUsername] = useState(false)
     const [userLoged, setUserLoged] = useState(Boolean(false))
 
-    useEffect(()=>{
-        if(loginUserData) setUserLoged(true)
-    },[loginUserData])
+    useEffect(() => {
+        if (loginUserData) setUserLoged(true)
+    }, [loginUserData])
     const onChangeValues = (e) => {
         const { name, value } = e.target
         setValues((prevValues) => ({
@@ -44,7 +44,7 @@ function Login({ changeOption }) {
             for (const key in values) {
                 formData.append(key, values[key])
             }
-            
+
             const result = await login(formData)
 
             if (result) {
@@ -88,24 +88,15 @@ function Login({ changeOption }) {
                 <h1 id='register-title'>Hola de nuevo!</h1>
                 <form id="form-register-wrapper" onSubmit={sendValues}>
                     <h3>Iniciar sesión en Fynka</h3>
-                    {!useUsername && (
-                        <label htmlFor="email" className='register-label'>Correo:
-                            <input type="email" id='email' name='email' placeholder='Ingresá tu correo' value={values.email} onChange={onChangeValues} disabled={userLoged}/>
-                            <button id='toggleUserName-btn' onClick={() => setUseUsername(!useUsername)} disabled={userLoged}>Usar alias</button>
-                        </label>
-                    )}
-                    {useUsername && (
-                        <label htmlFor="email" className='register-label'>Usuario:
-                            <input type="text" id='username' name='username' placeholder='Ingresá algún usuario' value={values.username} onChange={onChangeValues} disabled={userLoged}/>
-                            <button id='toggleUserName-btn' onClick={() => setUseUsername(!useUsername)} disabled={userLoged}>Usar correo</button>
-                        </label>
-                    )}
+                    <label htmlFor="email" className='register-label'>Correo:
+                        <input type="email" id='email' name='email' placeholder='Ingresá tu correo' value={values.email} onChange={onChangeValues} disabled={userLoged} />
+                    </label>
                     <label htmlFor="email" className='register-label'>Contraseña:
-                        <input type="password" id='psw' name='psw' placeholder='Ingresá tu contraseña' value={values.psw} onChange={onChangeValues} disabled={userLoged}/>
+                        <input type="password" id='psw' name='psw' placeholder='Ingresá tu contraseña' value={values.psw} onChange={onChangeValues} disabled={userLoged} />
                         <span className='showPsw' onClick={toggleShowPassword}><OpenEye /></span>
                     </label>
                     <div className="form-buttons__wrapper">
-                        {userLoged ? <button id='btn-login' onClick={()=>navigate("/dashboard")}>Ir al dashboard</button>
+                        {userLoged ? <button id='btn-login' onClick={() => navigate("/dashboard")}>Ir al dashboard</button>
                             :
                             <>
                                 <button id='btn-login' type='submit'>{sendingValues ? <Spin size='small' /> : "Iniciar sesión"}</button>
