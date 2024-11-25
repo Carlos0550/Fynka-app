@@ -67,8 +67,8 @@ function Register({changeOption}) {
                         <label htmlFor="email" className='register-label'>Correo:
                             <input type="email" id='email' name='email' placeholder='Ingresá tu correo' value={values.email} onChange={onChangeValues} />
                         </label>
-                        <label htmlFor="email" className='register-label'>Usuario:
-                            <input type="text" id='username' name='username' placeholder='Ingresá algún usuario' value={values.username} onChange={onChangeValues} />
+                        <label htmlFor="email" className='register-label'>Nombre completo:
+                            <input type="text" id='username' name='username' placeholder='Ingresá tu nombre' value={values.username} onChange={onChangeValues} />
 
                         </label>
                         <label htmlFor="email" className='register-label'>Contraseña:
