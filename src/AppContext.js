@@ -17,7 +17,7 @@ export const AppContextProvider = ({ children }) => {
 
     const registerBusiness = async (registerData) => {
         try {
-            const response = await fetch(`${baseUrl.api}/create-administrator`, {
+            const response = await fetch(`${baseUrl.api}/create-user`, {
                 method: "POST",
                 body: registerData
             })
@@ -115,8 +115,6 @@ export const AppContextProvider = ({ children }) => {
             const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms))
 
             while (attemps < maxAttempts) {
-                attemps += 1
-                console.log("Me ejecuto")
                 try {
                     if (userData) {
                         const parseData = JSON.parse(userData);
@@ -127,20 +125,23 @@ export const AppContextProvider = ({ children }) => {
                         const response = await fetch(
                             `${baseUrl.api}/verifyAuthUser?username=${encodeURIComponent(parseData.nombre_usuario)}&email=${encodeURIComponent(parseData.email)}`
                         );
-
+                        if (response.status === 401) {
+                            return message.info("Sesión caducada.")
+                        }
                         if (!response.ok) {
                             const errorData = await response.json();
                             throw new Error(errorData?.msg || "No se pudo verificar su sesión, Por favor, inicie sesión nuevamente.");
                         }
-                        if (!loginUserData) setLoginUserData(userData)
+                        if (!loginUserData) setLoginUserData(JSON.parse(userData))
                         message.success("Bienvenido nuevamente.");
-                        return true
-                    }else{
+                        break
+                    } else {
                         console.log("No hay nada en el local storage, termina el bucle")
                         break;
                     }
                 } catch (error) {
                     console.error(error);
+                    attemps += 1
                     navigate("/")
                     if (attemps >= maxAttempts) {
                         notification.error({
@@ -150,20 +151,70 @@ export const AppContextProvider = ({ children }) => {
                             showProgress: true,
                             pauseOnHover: false,
                         });
-                        return false
                     }
+                    await delay(3000)
+                } finally {
+                    console.log("Termina la verificación")
                 }
-                await delay(3000)
+
             }
         }
     };
+
+    const [userInfo, setUserInfo] = useState(null)
+    const getUserInfo = async () => {
+        let attempts = 0
+        const maxAttempts = 2
+        const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms))
+
+        while (attempts < maxAttempts) {
+
+            try {
+                const response = await fetch(`${baseUrl.api}/get-user_info?userID=${encodeURIComponent(loginUserData.id)}`)
+
+                let result;
+                try {
+                    result = await response.json();
+                } catch (jsonError) {
+                    throw new Error("No se pudo procesar la solicitud");
+                }
+
+                if (response.status === 400) throw new Error(result?.msg ?? "No se pudo procesar la solicitud");
+                if (response.status === 404) {
+                    console.log("404")
+                    return notification.error({
+                        message: result.msg,
+                        duration: 3,
+                        showProgress: true,
+                        pauseOnHover: false
+                    })
+                }
+                setUserInfo(result.usrInfo)
+                break;
+            } catch (error) {
+                attempts += 1
+                if (attempts >= maxAttempts) {
+                    console.log(error)
+                    notification.error({
+                        message: "Error al obtener la información del usuario",
+                        description: error.message || apiResponses.error,
+                        duration: 5,
+                        showProgress: true,
+                        pauseOnHover: false
+                    })
+                }
+
+                await delay(1000)
+            }
+        }
+    }
 
 
     return (
         <AppContext.Provider
             value={{
                 registerBusiness, login, loginUserData,
-                verifyAuthUser
+                verifyAuthUser, getUserInfo, userInfo
             }}
         >
             {children}
