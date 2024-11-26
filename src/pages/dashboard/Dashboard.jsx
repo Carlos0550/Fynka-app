@@ -6,12 +6,11 @@ import { Table } from 'antd'
 import { recentlyActivity } from '../../utils/recentlyActivity'
 
 function Dashboard() {
-  const { loginUserData, verifyAuthUser, getUserInfo } = useAppContext()
+  const { loginUserData, verifyAuthUser } = useAppContext()
 
   useEffect(() => {
     (async () => {
       await verifyAuthUser()
-      if (loginUserData?.id) await getUserInfo()
     })()
   }, [loginUserData])
 
