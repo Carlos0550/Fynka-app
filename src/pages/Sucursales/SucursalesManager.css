@@ -31,3 +31,24 @@
     transform: translateY(-5px);
     font-weight: bold;
 }
+
+.btn-branches{
+    background-color: white;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    padding: 5px;
+    transition: all 150ms ease-in-out;
+    cursor: pointer;
+}
+
+.btn-branches:hover.delete{
+    background-color: rgb(255, 47, 88);
+}
+
+.btn-branches:hover.edit{
+    background-color: rgb(47, 144, 255);
+}
+
+#edit-icon:hover, #delete-icon:hover{
+    color: white;
+}
