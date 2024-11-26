@@ -1,4 +1,4 @@
-import { createContext, useContext, useRef, useState } from "react";
+import { createContext, useContext, useEffect, useRef, useState } from "react";
 import { baseUrl } from "./api";
 import { message, notification } from "antd";
 import { apiResponses } from "./apiTexts";
@@ -104,117 +104,146 @@ export const AppContextProvider = ({ children }) => {
         };
     };
 
-    const alreadyVerified = useRef(false)
+    const [notLogged, setNotLogged] = useState(false);
+    const alreadyShownMessage = useRef(false);
+
     const verifyAuthUser = async () => {
-        if (!alreadyVerified.current) {
-            const userData = localStorage.getItem("userdata");
-            alreadyVerified.current = true
+        const userData = localStorage.getItem("userdata");
 
-            const maxAttempts = 2
-            let attemps = 0
-            const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms))
+        const maxAttempts = 2;
+        let attempts = 0;
+        const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
-            while (attemps < maxAttempts) {
-                try {
-                    if (userData) {
-                        const parseData = JSON.parse(userData);
-                        if (!parseData.nombre_usuario || !parseData.email) {
-                            throw new Error("No se pudo verificar su sesión, Por favor, inicie sesión nuevamente.");
-                        }
+        while (attempts < maxAttempts) {
+            try {
+                if (userData) {
+                    const parseData = JSON.parse(userData);
+                    if (!parseData.nombre_usuario || !parseData.email) {
+                        throw new Error("No se pudo verificar su sesión, Por favor, inicie sesión nuevamente.");
+                    }
 
-                        const response = await fetch(
-                            `${baseUrl.api}/verifyAuthUser?username=${encodeURIComponent(parseData.nombre_usuario)}&email=${encodeURIComponent(parseData.email)}`
-                        );
-                        if (response.status === 401) {
-                            return message.info("Sesión caducada.")
+                    const response = await fetch(
+                        `${baseUrl.api}/verifyAuthUser?username=${encodeURIComponent(parseData.nombre_usuario)}&email=${encodeURIComponent(parseData.email)}`
+                    );
+
+                    if (response.status === 401) {
+                        if (!alreadyShownMessage.current) {
+                            alreadyShownMessage.current = true;
+                            notification.success({ message: "Sesión caducada" });
                         }
-                        if (!response.ok) {
-                            const errorData = await response.json();
-                            throw new Error(errorData?.msg || "No se pudo verificar su sesión, Por favor, inicie sesión nuevamente.");
-                        }
-                        if (!loginUserData) setLoginUserData(JSON.parse(userData))
-                        message.success("Bienvenido nuevamente.");
-                        break
-                    } else {
-                        console.log("No hay nada en el local storage, termina el bucle")
+                        setNotLogged(true);
+                        navigate("/");
                         break;
                     }
-                } catch (error) {
-                    console.error(error);
-                    attemps += 1
-                    navigate("/")
-                    if (attemps >= maxAttempts) {
-                        notification.error({
-                            message: error.status === 401 ? "Sesión expirada" : "Error al intentar iniciar sesión",
-                            description: error.message || apiResponses.error,
-                            duration: 5,
-                            showProgress: true,
-                            pauseOnHover: false,
-                        });
+
+                    if (!response.ok) {
+                        const errorData = await response.json();
+                        throw new Error(errorData?.msg || "No se pudo verificar su sesión, Por favor, inicie sesión nuevamente.");
                     }
-                    await delay(3000)
-                } finally {
-                    console.log("Termina la verificación")
+
+                    if (!loginUserData) setLoginUserData(JSON.parse(userData));
+                    break;
+                } else {
+                    console.log("No hay datos en el local storage, termina el bucle");
+                    break;
+                }
+            } catch (error) {
+                console.error(error);
+                attempts += 1;
+
+                if (attempts >= maxAttempts && !alreadyShownMessage.current) {
+                    notification.error({
+                        message: error.status === 401 ? "Sesión expirada" : "Error al intentar iniciar sesión",
+                        description: error.message || "Error desconocido",
+                        duration: 5,
+                        showProgress: true,
+                        pauseOnHover: false,
+                    });
                 }
 
+                await delay(3000);
+
+                if (attempts >= maxAttempts) {
+                    alreadyShownMessage.current = true;
+                    navigate("/");
+                }
             }
         }
     };
 
-    const [userInfo, setUserInfo] = useState(null)
-    const getUserInfo = async () => {
-        let attempts = 0
-        const maxAttempts = 2
-        const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms))
+    const saveBranch = async (branchValues) => {
+        try {
+            const response = await fetch(`${baseUrl.api}/save-branch`, {
+                method: "POST",
+                body: branchValues
+            });
 
-        while (attempts < maxAttempts) {
-
-            try {
-                const response = await fetch(`${baseUrl.api}/get-user_info?userID=${encodeURIComponent(loginUserData.id)}`)
-
-                let result;
+            if (!response.ok) {
+                let errorData = {}
                 try {
-                    result = await response.json();
-                } catch (jsonError) {
-                    throw new Error("No se pudo procesar la solicitud");
-                }
-
-                if (response.status === 400) throw new Error(result?.msg ?? "No se pudo procesar la solicitud");
-                if (response.status === 404) {
-                    console.log("404")
-                    return notification.error({
-                        message: result.msg,
-                        duration: 3,
-                        showProgress: true,
-                        pauseOnHover: false
-                    })
-                }
-                setUserInfo(result.usrInfo)
-                break;
-            } catch (error) {
-                attempts += 1
-                if (attempts >= maxAttempts) {
+                    errorData = await response.json()
+                } catch (error) {
                     console.log(error)
-                    notification.error({
-                        message: "Error al obtener la información del usuario",
-                        description: error.message || apiResponses.error,
-                        duration: 5,
-                        showProgress: true,
-                        pauseOnHover: false
-                    })
                 }
 
-                await delay(1000)
+                return notification.error({ message: errorData.msg || "No fue posible completar la solicitud" })
             }
+            const data = await response.json()
+            console.log(data)
+            notification.success({ message: data.msg })
+            return true
+        } catch (error) {
+            console.log(error)
+            notification.error({
+                message: "Error al guardar la sucursal",
+                description: error.message || "Error desconocido",
+                duration: 5,
+                showProgress: true,
+                pauseOnHover: false,
+            });
+            return false
         }
     }
+
+    const [sucursales, setSucursales] = useState([])
+
+    const getAllBranches = async () => {
+        if (!loginUserData?.id) {
+            notification.warning({
+                message: "Usuario no listo",
+                description: "Es posible que las sucursales no se carguen, espere mientras cargamos los datos de su usuario, luego de este mensaje podrá reintentar esta operación",
+                duration: 5
+            });
+            return false;
+        }
+
+        try {
+            const response = await fetch(`${baseUrl.api}/get-branches/${loginUserData.id}`);
+            if (!response.ok) {
+                const responseData = await response.json();
+                throw new Error(responseData.msg || "Error en la solicitud.");
+            }
+
+            const responseData = await response.json();
+            setSucursales(responseData.sucursales);
+            return true;
+        } catch (error) {
+            console.error("Error al obtener sucursales:", error);
+            notification.error({
+                message: "Error al obtener las sucursales",
+                description: error.message || "Error desconocido.",
+            });
+            return false;
+        }
+    };
 
 
     return (
         <AppContext.Provider
             value={{
                 registerBusiness, login, loginUserData,
-                verifyAuthUser, getUserInfo, userInfo
+                verifyAuthUser, saveBranch, notLogged,
+                getAllBranches, sucursales
             }}
         >
             {children}
