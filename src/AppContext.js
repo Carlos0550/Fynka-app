@@ -189,8 +189,8 @@ export const AppContextProvider = ({ children }) => {
                 return notification.error({ message: errorData.msg || "No fue posible completar la solicitud" })
             }
             const data = await response.json()
-            console.log(data)
             notification.success({ message: data.msg })
+            await getAllBranches()
             return true
         } catch (error) {
             console.log(error)
@@ -237,13 +237,36 @@ export const AppContextProvider = ({ children }) => {
         }
     };
 
+    const deleteBranch = async (branchId) => {
+        if (!branchId) return notification.error({ message: "Ocurrió algo inesperado al intentar eliminar la sucuresal" })
+        try {
+            const response = await fetch(`${baseUrl.api}/delete-branch/${branchId}`,{
+                method: "DELETE"
+            })
+            const responseData = await response.json()
 
+            if (!response.ok) throw new Error(responseData.msg)
+            await getAllBranches()
+            message.success(`${response.msg}`)
+
+        }catch (error) {
+            console.log(error)
+            notification.error({
+                message: "Error al eliminar la sucursal",
+                description: error.message || "Error desconocido",
+                duration: 5,
+                showProgress: true,
+                pauseOnHover: false,
+            });
+            return false
+        }
+    }
     return (
         <AppContext.Provider
             value={{
                 registerBusiness, login, loginUserData,
                 verifyAuthUser, saveBranch, notLogged,
-                getAllBranches, sucursales
+                getAllBranches, sucursales, deleteBranch
             }}
         >
             {children}
