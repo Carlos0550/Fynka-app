@@ -3,7 +3,7 @@ import Layout from '../../components/Layout/Layout'
 
 import Plus from '../../assets/Plus'
 import "./SucursalesManager.css"
-import { Space, Table } from 'antd'
+import { Button, Space, Table } from 'antd'
 import ShowBranchesForm from './Modales/ShowBranchesForm'
 import { useAppContext } from '../../AppContext'
 import { Navigate } from 'react-router-dom'
@@ -11,8 +11,10 @@ import { Navigate } from 'react-router-dom'
 import { EditOutlined,DeleteOutlined } from "@ant-design/icons"
 function SucursalesManager() {
     const [openModal, setOpenModal] = useState(false)
+    const [formSelect, setFormSelect] = useState("")
+    const [branchId, setBranchId] = useState(null)
 
-    const { verifyAuthUser, notLogged, getAllBranches, sucursales,loginUserData } = useAppContext() 
+    const { verifyAuthUser, notLogged, getAllBranches, sucursales,loginUserData, deleteBranch } = useAppContext() 
     
     useEffect(()=>{
         (async()=>{
@@ -41,23 +43,33 @@ function SucursalesManager() {
         {
             render:(_,record)=>(
                 <Space direction='vertical'>
-                    <button className='btn-branches edit'><EditOutlined id='edit-icon' style={{fontSize: "24px"}}/></button>
-                    <button className='btn-branches delete'><DeleteOutlined id="delete-icon" style={{fontSize: "24px"}} /></button>
+                    <button className='btn-branches edit'
+                        onClick={()=>{
+                            setFormSelect(2)
+                            setBranchId(record.id)
+                            setOpenModal(true)
+                        }}
+                    ><EditOutlined id='edit-icon' style={{fontSize: "24px"}}/></button>
+                    <button onClick={()=> deleteBranch(record.id)} className='btn-branches delete'><DeleteOutlined id="delete-icon" style={{fontSize: "24px"}} /></button>
                 </Space>
             )
         }
     ]
 
-    function RenderSucursalesManager() {
+     function RenderSucursalesManager() {
         return (
             <React.Fragment>
                 <h1 >Sucursales</h1>
                 <p className='sucursales-p'>Gestioná aqui tus sucursales</p>
-
+                <Button onClick={()=> getAllBranches()}>Recargar</Button>
                 <div id="sucursales__wrapper">
                     <div id="sucursales-mix">
                         <h3>Lista de sucursales</h3>
-                        <button id='btn-add-sucursal' onClick={()=> setOpenModal(true)}><Plus /> Agregar Sucursal</button>
+                        <button id='btn-add-sucursal' onClick={()=> {
+                            setFormSelect(1)
+                            setOpenModal(true)
+                        }}>
+                            <Plus /> Agregar Sucursal</button>
                     </div>
                     <Table
                         style={{
@@ -73,7 +85,7 @@ function SucursalesManager() {
     return (
         <React.Fragment>
             <Layout children={RenderSucursalesManager()} />
-            {openModal && <ShowBranchesForm closeModal={()=> setOpenModal(false)}/>}
+            {openModal && <ShowBranchesForm actionType={formSelect} closeModal={()=> setOpenModal(false)} branchId={branchId}/>}
         </React.Fragment>
     )
 }
