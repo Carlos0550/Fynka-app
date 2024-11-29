@@ -8,7 +8,7 @@ import ShowBranchesForm from './Modales/ShowBranchesForm'
 import { useAppContext } from '../../AppContext'
 import { Navigate } from 'react-router-dom'
 
-import { EditOutlined,DeleteOutlined } from "@ant-design/icons"
+import { EditOutlined,DeleteOutlined, ReloadOutlined } from "@ant-design/icons"
 function SucursalesManager() {
     const [openModal, setOpenModal] = useState(false)
     const [formSelect, setFormSelect] = useState("")
@@ -24,7 +24,7 @@ function SucursalesManager() {
             else await verifyAuthUser()
             await getAllBranches()
         })()
-    },[loginUserData])
+    },[])
 
 
     const tableColumns = [
@@ -61,7 +61,7 @@ function SucursalesManager() {
             <React.Fragment>
                 <h1 >Sucursales</h1>
                 <p className='sucursales-p'>Gestioná aqui tus sucursales</p>
-                <Button onClick={()=> getAllBranches()}>Recargar</Button>
+                <Button onClick={()=> getAllBranches()} icon={<ReloadOutlined />}>Recargar</Button>
                 <div id="sucursales__wrapper">
                     <div id="sucursales-mix">
                         <h3>Lista de sucursales</h3>

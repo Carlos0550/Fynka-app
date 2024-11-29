@@ -12,7 +12,7 @@ function Dashboard() {
     (async () => {
       await verifyAuthUser()
     })()
-  }, [loginUserData])
+  }, [])
 
   const username = loginUserData && loginUserData.nombre_usuario
 
@@ -60,11 +60,6 @@ function Dashboard() {
                 <p className='miscellaneous-footer'>+4.1% desde la ultima semana.</p>
             </div>
 
-            <div className="miscellaneous-box">
-                <p className='miscellaneous-title'>Clientes Activos</p>
-                <p className='miscellaneous-data'>+12</p>
-                <p className='miscellaneous-footer'>+21.1% desde el ultimo mes</p>
-            </div>
             <div className="miscellaneous-box">
                 <p className='miscellaneous-title'>Deudas por vencer</p>
                 <p className='miscellaneous-data'>15</p>
