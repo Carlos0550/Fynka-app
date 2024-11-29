@@ -326,6 +326,30 @@ export const AppContextProvider = ({ children }) => {
             return false
         }
     }
+    
+    const deletClient = async(clientID) => {
+        try {
+            const response = await fetch(`${baseUrl.api}/delete-client/${clientID}`,{
+                method: "DELETE"
+            })
+
+            const responseData = await response.json()
+            if(!response.ok) throw new Error(responseData.msg)
+            await getClients()
+            message.success(`${responseData.msg}`)
+            return true;
+        } catch (error) {
+            console.log(error)
+            notification.error({
+                message: "No se pudo eliminar el cliente",
+                description: error.message || apiResponses.error,
+                duration: 5,
+                showProgress: true,
+                pauseOnHover: false
+            })
+            return false
+        }
+    }
 
     useEffect(() => {
         if (loginUserData) {
@@ -350,7 +374,8 @@ export const AppContextProvider = ({ children }) => {
                 registerBusiness, login, loginUserData,
                 verifyAuthUser, saveBranch, retryCountDown, serverWithDelay,
                 getAllBranches, sucursales, deleteBranch,
-                saveClient, getClients, clients
+                saveClient, getClients, clients,
+                deletClient,
             }}
         >
             {children}
