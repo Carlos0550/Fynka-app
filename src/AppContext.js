@@ -116,25 +116,6 @@ export const AppContextProvider = ({ children }) => {
         }
     };
 
-    const [retryCountDown, setRetryCountDown] = useState(0)
-    const [serverWithDelay, setServerWithDelay] = useState(false)
-    const startRetryCountdown = () => {
-        let remainingTime = 5; 
-        setServerWithDelay(true)
-        setRetryCountDown(remainingTime);
-
-        const interval = setInterval(() => {
-            remainingTime -= 1;
-            setRetryCountDown(remainingTime);
-
-            if (remainingTime <= 0) {
-                setServerWithDelay(false)
-                clearInterval(interval); 
-            }
-        }, 1000); 
-    };
-
-
     const [alreadyShownMessage, setAlreadyShownMessage] = useState(false);
 
     const verifyAuthUser = async () => {
@@ -171,7 +152,7 @@ export const AppContextProvider = ({ children }) => {
             setLoginUserData(parseData);
         } catch (error) {
             console.error(error);
-
+            startRetryCountdown()
             setLoginUserData({});
             localStorage.removeItem("userdata");
             navigate("/");
@@ -186,6 +167,24 @@ export const AppContextProvider = ({ children }) => {
                 pauseOnHover: false,
             });
         }
+    };
+
+    const [retryCountDown, setRetryCountDown] = useState(0)
+    const [serverWithDelay, setServerWithDelay] = useState(false)
+    const startRetryCountdown = () => {
+        let remainingTime = 5; 
+        setServerWithDelay(true)
+        setRetryCountDown(remainingTime);
+
+        const interval = setInterval(() => {
+            remainingTime -= 1;
+            setRetryCountDown(remainingTime);
+
+            if (remainingTime <= 0) {
+                setServerWithDelay(false)
+                clearInterval(interval); 
+            }
+        }, 1000); 
     };
 
     const saveBranch = async (branchValues) => {
