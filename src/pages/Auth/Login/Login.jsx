@@ -8,7 +8,7 @@ import OpenEye from "../../../assets/OpenEye"
 import { useNavigate } from 'react-router-dom'
 import { baseUrl } from '../../../api.js'
 function Login({ changeOption }) {
-    const { login, verifyAuthUser, loginUserData } = useAppContext()
+    const { login, loginUserData, retryCountDown, serverWithDelay, } = useAppContext()
     const navigate = useNavigate()
     const [values, setValues] = useState({
         email: "",
@@ -17,12 +17,13 @@ function Login({ changeOption }) {
     })
 
     const [sendingValues, setSendingValues] = useState(false)
-    const [useUsername, setUseUsername] = useState(false)
     const [userLoged, setUserLoged] = useState(Boolean(false))
 
     useEffect(() => {
-        if (loginUserData) setUserLoged(true)
+        if (loginUserData.id) setUserLoged(true)
+        else setUserLoged(false)
     }, [loginUserData])
+
     const onChangeValues = (e) => {
         const { name, value } = e.target
         setValues((prevValues) => ({
@@ -35,8 +36,7 @@ function Login({ changeOption }) {
         e.preventDefault()
         setSendingValues(true)
         try {
-            if (useUsername && values.username.trim() === "") throw new Error("El nombre de usuario es requerido")
-            if (!useUsername && values.email.trim() === "") throw new Error("El email es requerido")
+            if (values.email.trim() === "") throw new Error("El email es requerido")
             if (values.psw.trim() === "") throw new Error("La contraseña no puede estar vacia")
 
             const formData = new FormData()
@@ -79,9 +79,7 @@ function Login({ changeOption }) {
         }
     }
 
-    useEffect(() => {
-        verifyAuthUser()
-    }, [])
+
     return (
         <React.Fragment>
             <div id="login-container">
@@ -95,12 +93,17 @@ function Login({ changeOption }) {
                         <input type="password" id='psw' name='psw' placeholder='Ingresá tu contraseña' value={values.psw} onChange={onChangeValues} disabled={userLoged} />
                         <span className='showPsw' onClick={toggleShowPassword}><OpenEye /></span>
                     </label>
+                    {serverWithDelay && <p style={{ color: "red" }}>Reintentar en {retryCountDown}</p>}
                     <div className="form-buttons__wrapper">
                         {userLoged ? <button id='btn-login' onClick={() => navigate("/dashboard")}>Ir al dashboard</button>
                             :
                             <>
-                                <button id='btn-login' type='submit'>{sendingValues ? <Spin size='small' /> : "Iniciar sesión"}</button>
-                                <button id='goToLogin-btn' type='button' onClick={() => changeOption(1)}>Crear cuenta</button>
+                                {!serverWithDelay &&
+                                    <React.Fragment>
+                                         <button id='btn-login' type='submit'>{sendingValues ? <Spin size='small' /> : "Iniciar sesión"}</button>
+                                         <button id='goToLogin-btn' type='button' onClick={() => changeOption(1)}>Crear cuenta</button>
+                                    </React.Fragment>
+                                }
                             </>
 
                         }
