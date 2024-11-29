@@ -5,7 +5,7 @@ import { useAppContext } from '../../../AppContext'
 function CreateClient({ closeModal }) {
     const [form] = Form.useForm()
     const [sending, setSending] = useState(false)
-    const { loginUserData, saveClient } = useAppContext()
+    const { saveClient } = useAppContext()
 
     const onFinish = async (params) => {
         setSending(true)
@@ -16,9 +16,6 @@ function CreateClient({ closeModal }) {
             formData.append(key, params[key])
         }
         formData.append("editing", false)
-        console.log(loginUserData)
-        formData.append("branchId", loginUserData.sucursal_id)
-
         const result = await saveClient(formData)
         setSending(false)
         if (result) closeModal()
