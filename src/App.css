@@ -1,18 +1,75 @@
 @import url('https://fonts.googleapis.com/css2?family=Lato:ital,wght@0,100;0,300;0,400;0,700;0,900;1,100;1,300;1,400;1,700;1,900&family=Parkinsans:wght@300..800&display=swap');
 
-*{
+* {
   padding: 0;
   margin: 0;
   box-sizing: border-box;
   font-family: 'Parkinsans', 'sans-serif';
 }
 
-html{
+html {
   overflow-x: hidden;
 }
 
-@media(max-width:768px){
-  html{
+@media(max-width:768px) {
+  html {
     overflow-x: auto;
   }
+}
+
+p {
+  color: #323232;
+
+}
+
+.btn-add {
+  background-color: black;
+  border: none;
+  border-radius: 5px;
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: .5rem;
+  gap: .2rem;
+  cursor: pointer;
+  transition: all 150ms ease-in-out;
+}
+
+.btn-add:hover {
+  transform: translateY(-5px);
+  font-weight: bold;
+}
+
+.box__wrapper {
+  display: flex;
+  flex-direction: column;
+  margin-top: 1rem;
+}
+
+.mix-box {
+  display: flex;
+  justify-content: space-between;
+}
+
+.btn-actions {
+  background-color: white;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  padding: 5px;
+  transition: all 150ms ease-in-out;
+  cursor: pointer;
+}
+
+.btn-actions:hover.delete {
+  background-color: rgb(255, 47, 88);
+}
+
+.btn-actions:hover.edit {
+  background-color: rgb(47, 144, 255);
+}
+
+#edit-icon:hover,
+#delete-icon:hover {
+  color: white;
 }
