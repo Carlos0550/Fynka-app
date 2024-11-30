@@ -2,7 +2,6 @@ import React, { useEffect, useState } from 'react'
 import Layout from '../../components/Layout/Layout'
 
 import Plus from '../../assets/Plus'
-import "./SucursalesManager.css"
 import { Button, Space, Table } from 'antd'
 import ShowBranchesForm from './Modales/ShowBranchesForm'
 import { useAppContext } from '../../AppContext'
@@ -43,14 +42,14 @@ function SucursalesManager() {
         {
             render:(_,record)=>(
                 <Space direction='vertical'>
-                    <button className='btn-branches edit'
+                    <button className='btn-actions edit'
                         onClick={()=>{
                             setFormSelect(2)
                             setBranchId(record.id)
                             setOpenModal(true)
                         }}
                     ><EditOutlined id='edit-icon' style={{fontSize: "24px"}}/></button>
-                    <button onClick={()=> deleteBranch(record.id)} className='btn-branches delete'><DeleteOutlined id="delete-icon" style={{fontSize: "24px"}} /></button>
+                    <button onClick={()=> deleteBranch(record.id)} className='btn-actions delete'><DeleteOutlined id="delete-icon" style={{fontSize: "24px"}} /></button>
                 </Space>
             )
         }
@@ -62,10 +61,10 @@ function SucursalesManager() {
                 <h1 >Sucursales</h1>
                 <p className='sucursales-p'>Gestioná aqui tus sucursales</p>
                 <Button onClick={()=> getAllBranches()} icon={<ReloadOutlined />}>Recargar</Button>
-                <div id="sucursales__wrapper">
-                    <div id="sucursales-mix">
+                <div class="box__wrapper">
+                    <div class="mix-box">
                         <h3>Lista de sucursales</h3>
-                        <button id='btn-add-sucursal' onClick={()=> {
+                        <button className='btn-add' onClick={()=> {
                             setFormSelect(1)
                             setOpenModal(true)
                         }}>
