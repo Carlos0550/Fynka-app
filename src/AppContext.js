@@ -124,7 +124,7 @@ export const AppContextProvider = ({ children }) => {
             const userData = localStorage.getItem("userdata");
 
             if (!userData) {
-                throw new Error("No hay datos en el local storage. Por favor, inicie sesión nuevamente.");
+                throw new Error("Su sesión no es válida. Por favor, inicie sesión nuevamente.");
             }
 
             const parseData = JSON.parse(userData);
@@ -139,9 +139,8 @@ export const AppContextProvider = ({ children }) => {
             if (response.status === 401) {
                 if (!alreadyShownMessage) {
                     setAlreadyShownMessage(true);
-                    notification.info({ message: "Sesión caducada", duration: 4 });
+                    return notification.info({ message: "Sesión caducada", duration: 2 });
                 }
-                throw new Error("Sesión expirada. Por favor, inicie sesión nuevamente.");
             }
 
             if (!response.ok) {
@@ -172,7 +171,7 @@ export const AppContextProvider = ({ children }) => {
     const [retryCountDown, setRetryCountDown] = useState(0)
     const [serverWithDelay, setServerWithDelay] = useState(false)
     const startRetryCountdown = () => {
-        let remainingTime = 5; 
+        let remainingTime = 5;
         setServerWithDelay(true)
         setRetryCountDown(remainingTime);
 
@@ -182,9 +181,9 @@ export const AppContextProvider = ({ children }) => {
 
             if (remainingTime <= 0) {
                 setServerWithDelay(false)
-                clearInterval(interval); 
+                clearInterval(interval);
             }
-        }, 1000); 
+        }, 1000);
     };
 
     const saveBranch = async (branchValues) => {
@@ -283,13 +282,13 @@ export const AppContextProvider = ({ children }) => {
 
     const [clients, setClients] = useState([])
     const getClients = async () => {
-        console.log("Ejecuta la funcion GetClients")
         try {
             const response = await fetch(`${baseUrl.api}/get-clients`)
 
             const responseData = await response.json()
             if (!response.ok) throw new Error(responseData.msg)
             setClients(responseData.clients)
+            return true
         } catch (error) {
             console.log(error)
             notification.error({
@@ -299,6 +298,7 @@ export const AppContextProvider = ({ children }) => {
                 showProgress: true,
                 pauseOnHover: false
             })
+            return false
         }
     }
 
@@ -326,15 +326,15 @@ export const AppContextProvider = ({ children }) => {
             return false
         }
     }
-    
-    const deletClient = async(clientID) => {
+
+    const deletClient = async (clientID) => {
         try {
-            const response = await fetch(`${baseUrl.api}/delete-client/${clientID}`,{
+            const response = await fetch(`${baseUrl.api}/delete-client/${clientID}`, {
                 method: "DELETE"
             })
 
             const responseData = await response.json()
-            if(!response.ok) throw new Error(responseData.msg)
+            if (!response.ok) throw new Error(responseData.msg)
             await getClients()
             message.success(`${responseData.msg}`)
             return true;
@@ -351,15 +351,48 @@ export const AppContextProvider = ({ children }) => {
         }
     }
 
+    const [adminUsers, setAdminUsers] = useState([])
+    const getUsers = async () => {
+        try {
+            const response = await fetch(`${baseUrl.api}/get-users/${loginUserData.id}`)
+            if (response.status === 404) return notification.info({ message: "No tiene usuarios asociados." })
+            if(!response.ok){
+                let errorMsg = {}
+                try {
+                    errorMsg = response.json()
+                } catch (error) {
+                    return notification.error({message: "Error al procesar la solicitud."})
+                }
+                console.log(errorMsg.msg)
+                throw new Error(errorMsg.msg)
+            }
+
+            const responseData = await response.json()
+            
+            setAdminUsers(responseData.users)
+            message.success(`${responseData.msg}`)
+            return true
+        } catch (error) {
+            console.log(error)
+            notification.error({
+                message: "Error al obtener la lista de usuarios",
+                description: error.message || apiResponses.error,
+                duration: 5,
+                showProgress: true,
+                pauseOnHover: false
+            })
+            return false
+        }
+    }
+
     useEffect(() => {
         if (loginUserData) {
             const interval = setInterval(() => {
 
                 verifyAuthUser()
-            }, 120000);
+            }, 5 * 60 * 1000);
             return () => clearInterval(interval)
         }
-        console.log("No se hace la comprobación")
     }, [loginUserData])
 
     //aL cargar el sistema, iniciar una comprobacion inicial
@@ -375,7 +408,7 @@ export const AppContextProvider = ({ children }) => {
                 verifyAuthUser, saveBranch, retryCountDown, serverWithDelay,
                 getAllBranches, sucursales, deleteBranch,
                 saveClient, getClients, clients,
-                deletClient,
+                deletClient, getUsers, adminUsers
             }}
         >
             {children}
