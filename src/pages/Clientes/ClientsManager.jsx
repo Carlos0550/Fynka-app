@@ -9,11 +9,14 @@ import ClientFormModal from './Modales/ClientFormModal'
 import { CapitaliceStrings } from '../../utils/CapitaliceStrings'
 
 import { DeleteOutlined, EditOutlined, IdcardOutlined, ReloadOutlined } from "@ant-design/icons"
+import { Route, Routes, useNavigate } from 'react-router-dom'
+import AccountManager from './Cuentas_corrientes/AccountManager'
 function ClientsManager() {
     const { getClients, clients, verifyAuthUser } = useAppContext()
     const [modalStatus, setModalStatus] = useState(false)
     const [actionType, setActionType] = useState(null)
     const [clientId, setClientId] = useState(null)
+    const navigate = useNavigate()
 
     const toggleModal = (actionTp, clientId = null) => {
         setActionType(actionTp)
@@ -41,7 +44,7 @@ function ClientsManager() {
         {
             render: (_, record) => (
                 <Space direction='vertical'>
-                    <Button icon={<IdcardOutlined />}>Ver cuenta</Button>
+                    <Button icon={<IdcardOutlined />} onClick={()=> navigate(`/clientes/cuentas-corrientes/${record.id}`)}>Ver cuenta</Button>
                     <Space> <Button icon={<EditOutlined/>} onClick={()=>{
                         toggleModal(2, record.id)
                     }}/>  
@@ -87,10 +90,14 @@ function ClientsManager() {
     }, [])
     return (
         <React.Fragment>
-            <Layout children={RenderClientManager()} />
+            
             {
                 modalStatus && <ClientFormModal closeModal={toggleModal} actionType={actionType} clientId={clientId}/>
             }
+            <Routes>
+                <Route path='/' element={<Layout children={RenderClientManager()} />}/>
+                <Route path="/cuentas-corrientes/:clientId" element={<AccountManager/>}/>
+            </Routes>
         </React.Fragment>
     )
 }
