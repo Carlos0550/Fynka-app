@@ -114,7 +114,7 @@ function Register({ changeOption }) {
                         <input type={showPassword ? "text" : "password"} id='double_psw' name='double_psw' placeholder='Ingresá tu contraseña una vez más' value={values.double_psw} onChange={onChangeValues} />
                     </label>
                     <div className="form-buttons__wrapper">
-                        <button id='btn-register' type='submit'>Registrarme</button>
+                        <button id='btn-register' type='submit' disabled={sendingValues}>{sendingValues ? "Registrando..." : "Registrarme"}</button>
                         <button id='goToLogin-btn' type='button' onClick={() => changeOption(0)}>Iniciar sesión</button>
                     </div>
                 </form>
