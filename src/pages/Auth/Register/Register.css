@@ -1,6 +1,4 @@
-
-
-#register-title{
+#register-title {
     font-size: clamp(1.2rem, 2.5vw + 1vw, 2.2rem);
     color: rgb(54, 54, 54);
     text-wrap: wrap;
@@ -9,7 +7,7 @@
     text-align: center;
 }
 
-#register-container{
+#register-container {
     border-radius: 10px;
     padding: 1rem;
     max-width: 500px;
@@ -18,29 +16,43 @@
     flex-direction: column;
     flex-wrap: wrap;
     border-radius: 10px;
-background: #e0e0e0;
-box-shadow:  -20px 20px 60px #bebebe,
-             20px -20px 60px #ffffff;
+    background: #e0e0e0;
+    box-shadow: -20px 20px 60px #bebebe,
+        20px -20px 60px #ffffff;
 }
 
-#form-register-wrapper{
+#form-register-wrapper {
     display: flex;
     flex-direction: column;
     margin-top: .5rem;
 }
 
-#form-register-wrapper h3{
-    color: rgb(54,54,54);
+#form-register-wrapper h3 {
+    color: rgb(54, 54, 54);
 }
 
-.register-label{
+.register-label {
     display: flex;
     flex-direction: column;
     color: rgb(0, 0, 0);
     gap: .3rem;
 }
+.register-label.password{
+    flex-direction: row;
+    margin-top: .5rem;
+}
 
-.register-label input{
+.showPswRegister{
+    background-color: black;
+    border-radius: 1rem;
+    aspect-ratio: 1/1;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+}
+
+.register-label input {
     border: none;
     border-radius: 5px;
     font-size: 1rem;
@@ -49,18 +61,18 @@ box-shadow:  -20px 20px 60px #bebebe,
     transition: all 150ms ease-in-out;
 }
 
-.register-label input:focus{
+.register-label input:focus {
     transform: translateY(-2px);
 }
 
-.form-buttons__wrapper{
+.form-buttons__wrapper {
     display: flex;
     align-items: center;
     justify-content: center;
     gap: 1rem;
 }
 
-#btn-register{
+#btn-register {
     max-width: 100px;
     margin-top: 1rem;
     border: none;
@@ -70,17 +82,17 @@ box-shadow:  -20px 20px 60px #bebebe,
     transition: all 150ms ease-in-out;
 }
 
-#btn-register:hover{
+#btn-register:hover {
     transform: translateY(-3px);
     font-weight: bold;
     background-color: aliceblue;
 }
 
-#btn-register:active{
+#btn-register:active {
     scale: 0.95;
 }
 
-#goToLogin-btn{
+#goToLogin-btn {
     max-width: 150px;
     align-self: center;
     margin-top: 1rem;
@@ -89,20 +101,35 @@ box-shadow:  -20px 20px 60px #bebebe,
     padding: .5rem;
     cursor: pointer;
     transition: all 150ms ease-in-out;
-    background-color:#1b1b1b;
+    background-color: #1b1b1b;
     border: 1px solid white;
     color: white;
 }
 
-#goToLogin-btn:hover{
+#goToLogin-btn:hover {
     transform: translateY(-3px);
     font-weight: bold;
     background-color: rgb(0, 0, 0);
 }
 
-#goToLogin-btn:active{
+#goToLogin-btn:active {
     scale: 0.95;
 }
 
+#secure-psw-btn {
+    width: 200px;
+    margin-top: .5rem;
+    border: none;
+    border-radius: 5px;
+    padding: .3rem;
+    background-color: crimson;
+    color: white;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 120ms ease-in-out;
+}
 
+#secure-psw-btn:hover{
+    font-weight: bold;
+}
 
