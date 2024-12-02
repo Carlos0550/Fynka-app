@@ -3,8 +3,12 @@ import React from 'react'
 import CreateClient from '../Formularios/CreateClient';
 import EditClient from '../Formularios/EditClient';
 import DeleteClientAlert from '../Alertas/DeleteClientAlert';
+import { useAppContext } from '../../../AppContext';
 
 function ClientFormModal({ closeModal, actionType, clientId }) {
+    const {loginUserData} = useAppContext()
+
+
 
     const titleKeys = {
         1: "Crear un cliente",
@@ -17,7 +21,7 @@ function ClientFormModal({ closeModal, actionType, clientId }) {
             case 1:
                 
                 return(
-                    <CreateClient closeModal={closeModal}/>
+                    <CreateClient closeModal={closeModal} administrator_id={loginUserData.id}/>
                 )
             case 2:
                 return (
