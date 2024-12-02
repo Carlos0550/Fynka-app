@@ -118,16 +118,19 @@ export const AppContextProvider = ({ children }) => {
     };
 
     const [alreadyShownMessage, setAlreadyShownMessage] = useState(false);
-
+    const [doNotVerify, setDoNotVerify] = useState(false);
     const verifyAuthUser = async () => {
+        console.log("Ejecuta verifyAuthUser")
         try {
             const userData = localStorage.getItem("userdata");
-
+            
             if (!userData) {
+                setDoNotVerify(true);
                 throw new Error("Su sesión no es válida. Por favor, inicie sesión nuevamente.");
             }
 
             const parseData = JSON.parse(userData);
+            
             if (!parseData.nombre_usuario || !parseData.email) {
                 throw new Error("No se pudo verificar su sesión. Por favor, inicie sesión nuevamente.");
             }
@@ -147,21 +150,22 @@ export const AppContextProvider = ({ children }) => {
                 const errorData = await response.json();
                 throw new Error(errorData?.msg || "No se pudo verificar su sesión.");
             }
-
+            setDoNotVerify(false)
             setLoginUserData(parseData);
         } catch (error) {
             console.error(error);
+            setDoNotVerify(true)
             startRetryCountdown()
             setLoginUserData({});
             localStorage.removeItem("userdata");
             navigate("/");
 
             notification.error({
-                message: error.status === 401 ? "Sesión expirada" : "Error al verificar la sesión",
+                message: error.status === 401 ? "Error al verificar la sesión" : "Sesión caducada",
                 description:
                     error.status !== 401
-                        ? "No fue posible verificar la sesión, probablemente el servidor esté inactivo. Intente nuevamente más tarde."
-                        : error.message,
+                        ? error.message
+                        : "No fue posible verificar la sesión, probablemente el servidor esté inactivo. Intente nuevamente más tarde.",
                 duration: 5,
                 pauseOnHover: false,
             });
@@ -285,7 +289,8 @@ export const AppContextProvider = ({ children }) => {
         try {
             const response = await fetch(`${baseUrl.api}/get-clients`)
 
-            const responseData = await response.json()
+            const responseData = await processResponseData(response)
+            if(response.status === 404) return notification.info({message: responseData.msg})
             if (!response.ok) throw new Error(responseData.msg)
             setClients(responseData.clients)
             return true
@@ -304,7 +309,7 @@ export const AppContextProvider = ({ children }) => {
 
     const saveClient = async (clientData) => {
         try {
-            const response = await fetch(`${baseUrl.api}/save-client`, {
+            const response = await fetch(`${baseUrl.api}/save-client?branchId=${loginUserData.sucursal_id}`, {
                 method: "POST",
                 body: clientData
             });
@@ -434,14 +439,14 @@ export const AppContextProvider = ({ children }) => {
     }
 
     useEffect(() => {
-        if (loginUserData) {
+        if (loginUserData && !doNotVerify) {
             const interval = setInterval(() => {
 
                 verifyAuthUser()
             }, 5 * 60 * 1000);
             return () => clearInterval(interval)
         }
-    }, [loginUserData])
+    }, [loginUserData, doNotVerify])
 
     //aL cargar el sistema, iniciar una comprobacion inicial
     useEffect(() => {
