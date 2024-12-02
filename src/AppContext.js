@@ -3,6 +3,7 @@ import { baseUrl } from "./api";
 import { message, notification } from "antd";
 import { apiResponses } from "./apiTexts";
 import { useNavigate } from "react-router-dom";
+import { processResponseData } from "./utils/ProcessResponseData";
 
 const AppContext = createContext()
 
@@ -17,7 +18,7 @@ export const AppContextProvider = ({ children }) => {
 
     const registerBusiness = async (registerData) => {
         try {
-            const response = await fetch(`${baseUrl.api}/create-user`, {
+            const response = await fetch(`${baseUrl.api}/create-administrator`, {
                 method: "POST",
                 body: registerData
             })
@@ -119,7 +120,6 @@ export const AppContextProvider = ({ children }) => {
     const [alreadyShownMessage, setAlreadyShownMessage] = useState(false);
 
     const verifyAuthUser = async () => {
-        console.log("Ejecuta verifyAuthUser")
         try {
             const userData = localStorage.getItem("userdata");
 
@@ -353,21 +353,17 @@ export const AppContextProvider = ({ children }) => {
 
     const [adminUsers, setAdminUsers] = useState([])
     const getUsers = async () => {
+        if(!loginUserData?.id) return notification.info({message: "Aún estamos cargando tus datos, espere unos segundos e intente nuevamente."})
+
         try {
             const response = await fetch(`${baseUrl.api}/get-users/${loginUserData.id}`)
-            if (response.status === 404) return notification.info({ message: "No tiene usuarios asociados." })
-            if(!response.ok){
-                let errorMsg = {}
-                try {
-                    errorMsg = response.json()
-                } catch (error) {
-                    return notification.error({message: "Error al procesar la solicitud."})
-                }
-                console.log(errorMsg.msg)
-                throw new Error(errorMsg.msg)
+            const responseData = await processResponseData(response)
+            if (response.status === 404){
+                setAdminUsers(responseData.admData)
+                return notification.info({ message: "No tiene usuarios asociados." })
             }
+            if(!response.ok) throw new Error(responseData.msg)
 
-            const responseData = await response.json()
             
             setAdminUsers(responseData.users)
             message.success(`${responseData.msg}`)
@@ -376,7 +372,59 @@ export const AppContextProvider = ({ children }) => {
             console.log(error)
             notification.error({
                 message: "Error al obtener la lista de usuarios",
-                description: error.message || apiResponses.error,
+                description: error.message,
+                duration: 5,
+                showProgress: true,
+                pauseOnHover: false
+            })
+            return false
+        }
+    };
+    
+    const saveUser = async(userData) =>{
+        try {
+            const response = await fetch(`${baseUrl.api}/create-associate-user`,{
+                method: "POST",
+                body: userData
+            })
+
+            if(!response.ok){
+                let errorResp = await processResponseData(response)
+                return notification.warning({message: errorResp.msg})
+            }
+            const responseData = await processResponseData(response)
+            await getUsers()
+            message.success(responseData.msg)
+            return true
+        } catch (error) {
+            console.log(error)
+            notification.success({
+                message: "Error de conexión o de servidor",
+                description: "Verifique su red o espere unos segundos e intente nuevamente.",
+                duration: 3,
+                pauseOnHover: false
+            })
+
+            return false
+        }
+    }
+
+    const assignBranch = async(branchId, userId) => {
+        try {
+            const response = await fetch(`${baseUrl.api}/assign-branch?branchId=${branchId}&userId=${userId}`,{
+                method: "PUT"
+            });
+            
+            const responseData = await processResponseData(response)
+            if(!response.ok) throw new Error(responseData.msg)
+            await getUsers()
+            message.success(responseData.msg)
+            return true
+        } catch (error) {
+            console.log(error)
+            notification.error({
+                message: "Error al asignar la sucursal",
+                description: error.message,
                 duration: 5,
                 showProgress: true,
                 pauseOnHover: false
@@ -408,7 +456,8 @@ export const AppContextProvider = ({ children }) => {
                 verifyAuthUser, saveBranch, retryCountDown, serverWithDelay,
                 getAllBranches, sucursales, deleteBranch,
                 saveClient, getClients, clients,
-                deletClient, getUsers, adminUsers
+                deletClient, getUsers, adminUsers,saveUser,
+                assignBranch
             }}
         >
             {children}
