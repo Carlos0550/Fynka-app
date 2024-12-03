@@ -53,7 +53,6 @@ function UsersManager() {
         }
     ]
 
-    console.log(adminUsers)
     function RenderUsersManager() {
         return (
             <React.Fragment>
