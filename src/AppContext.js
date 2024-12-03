@@ -292,6 +292,7 @@ export const AppContextProvider = ({ children }) => {
             const responseData = await processResponseData(response)
             if(response.status === 404) return notification.info({message: responseData.msg})
             if (!response.ok) throw new Error(responseData.msg)
+                console.log(responseData)
             setClients(responseData.clients)
             return true
         } catch (error) {
@@ -436,6 +437,33 @@ export const AppContextProvider = ({ children }) => {
             })
             return false
         }
+    };
+
+    const [clientDebts, setClientDebts] = useState([])
+    const [clientMoneyDelivers, setClientMoneyDelivers] = useState([])
+    const getClientAccount = async(clientId, branchId) => {
+        if(!loginUserData?.sucursal_id) return notification.info({message: "Aún estamos cargando tus datos, espere unos segundos e intente nuevamente."})
+
+        try {
+            const response = await fetch(`${baseUrl.api}/get-client-account?clientId=${clientId}&branchId=${branchId || loginUserData.sucursal_id}`);
+            const responseData = await processResponseData(response)
+            if(response.status === 404) return notification.info({message: responseData.msg})
+            if(!response.ok) throw new Error(responseData.msg)
+            setClientDebts(responseData.debts)
+            setClientMoneyDelivers(responseData.delivers)
+            message.success(`${responseData.msg}`)
+            return true
+        } catch (error) {
+            console.log(error)
+            notification.error({
+                message: "Error al obtener la cuenta del cliente",
+                description: error.message,
+                duration: 5,
+                showProgress: true,
+                pauseOnHover: false
+            })
+            return false
+        }
     }
 
     useEffect(() => {
@@ -462,7 +490,7 @@ export const AppContextProvider = ({ children }) => {
                 getAllBranches, sucursales, deleteBranch,
                 saveClient, getClients, clients,
                 deletClient, getUsers, adminUsers,saveUser,
-                assignBranch
+                assignBranch, getClientAccount, clientDebts, clientMoneyDelivers
             }}
         >
             {children}
