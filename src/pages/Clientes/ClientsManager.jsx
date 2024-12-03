@@ -34,11 +34,7 @@ function ClientsManager() {
         {
             title: "Datos del cliente",
             render: (_, record) => (
-                <Space direction='vertical'>
-                    <p><strong>DNI: </strong>{record.dni}</p>
-                    <p><strong>Correo: </strong>{record.email || "N/A"}</p>
-                    <p><strong>Dirección: </strong>{record.direccion || "N/A"}</p>
-                </Space>
+                <Button type='primary'>Ver datos</Button>
             )
         },
         {
