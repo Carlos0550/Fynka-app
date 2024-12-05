@@ -2,7 +2,7 @@ import { Button, Table } from 'antd'
 import React, { useState } from 'react'
 import ShowAccountsForms from '../Modales/ShowAccountsForms'
 
-function Debts({branches, clientId, debts}) {
+function Debts() {
   const [openModal, setOpenmodal] = useState(false)
   const handleOpenModal = () => {
     setOpenmodal(true)
@@ -27,7 +27,6 @@ function Debts({branches, clientId, debts}) {
     {openModal && 
     <ShowAccountsForms 
       closeModal={() => setOpenmodal(false)} 
-      state={{branches, clientId}} 
       actionType={1}/>
     }
 

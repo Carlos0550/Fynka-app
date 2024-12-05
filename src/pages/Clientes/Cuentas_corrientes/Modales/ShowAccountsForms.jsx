@@ -2,7 +2,7 @@ import { Modal } from 'antd'
 import React from 'react'
 import AddDebt from '../Formularios/AddDebt'
 
-function ShowAccountsForms({closeModal, state, actionType}) {
+function ShowAccountsForms({closeModal, actionType}) {
   const titleKeys = {
     1: "Agregar una deuda"
   }

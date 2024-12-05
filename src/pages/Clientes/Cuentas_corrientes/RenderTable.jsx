@@ -2,18 +2,17 @@ import React from 'react'
 import Debts from './Tables/Debts'
 import Delivers from './Tables/Delivers'
 import { Empty } from 'antd'
-function RenderTable({tableId, state}) {
-    console.log(state)
+function RenderTable({tableId}) {
     function RenderTable() {
         switch (parseInt(tableId)) {
             case 1:
                 
                 return(
-                    <Debts/>
+                    <Debts />
                 )
             case 2: 
                 return(
-                    <Delivers/>
+                    <Delivers />
                 )
             default:
                 <Empty/>
