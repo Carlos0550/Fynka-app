@@ -123,14 +123,14 @@ export const AppContextProvider = ({ children }) => {
         console.log("Ejecuta verifyAuthUser")
         try {
             const userData = localStorage.getItem("userdata");
-            
+
             if (!userData) {
                 setDoNotVerify(true);
                 throw new Error("Su sesión no es válida. Por favor, inicie sesión nuevamente.");
             }
 
             const parseData = JSON.parse(userData);
-            
+
             if (!parseData.nombre_usuario || !parseData.email) {
                 throw new Error("No se pudo verificar su sesión. Por favor, inicie sesión nuevamente.");
             }
@@ -290,9 +290,9 @@ export const AppContextProvider = ({ children }) => {
             const response = await fetch(`${baseUrl.api}/get-clients`)
 
             const responseData = await processResponseData(response)
-            if(response.status === 404) return notification.info({message: responseData.msg})
+            if (response.status === 404) return notification.info({ message: responseData.msg })
             if (!response.ok) throw new Error(responseData.msg)
-                console.log(responseData)
+            console.log(responseData)
             setClients(responseData.clients)
             return true
         } catch (error) {
@@ -359,18 +359,18 @@ export const AppContextProvider = ({ children }) => {
 
     const [adminUsers, setAdminUsers] = useState([])
     const getUsers = async () => {
-        if(!loginUserData?.id) return notification.info({message: "Aún estamos cargando tus datos, espere unos segundos e intente nuevamente."})
+        if (!loginUserData?.id) return notification.info({ message: "Aún estamos cargando tus datos, espere unos segundos e intente nuevamente." })
 
         try {
             const response = await fetch(`${baseUrl.api}/get-users/${loginUserData.id}`)
             const responseData = await processResponseData(response)
-            if (response.status === 404){
+            if (response.status === 404) {
                 setAdminUsers(responseData.admData)
                 return notification.info({ message: "No tiene usuarios asociados." })
             }
-            if(!response.ok) throw new Error(responseData.msg)
+            if (!response.ok) throw new Error(responseData.msg)
 
-            
+
             setAdminUsers(responseData.users)
             message.success(`${responseData.msg}`)
             return true
@@ -386,17 +386,17 @@ export const AppContextProvider = ({ children }) => {
             return false
         }
     };
-    
-    const saveUser = async(userData) =>{
+
+    const saveUser = async (userData) => {
         try {
-            const response = await fetch(`${baseUrl.api}/create-associate-user`,{
+            const response = await fetch(`${baseUrl.api}/create-associate-user`, {
                 method: "POST",
                 body: userData
             })
 
-            if(!response.ok){
+            if (!response.ok) {
                 let errorResp = await processResponseData(response)
-                return notification.warning({message: errorResp.msg})
+                return notification.warning({ message: errorResp.msg })
             }
             const responseData = await processResponseData(response)
             await getUsers()
@@ -415,14 +415,14 @@ export const AppContextProvider = ({ children }) => {
         }
     }
 
-    const assignBranch = async(branchId, userId) => {
+    const assignBranch = async (branchId, userId) => {
         try {
-            const response = await fetch(`${baseUrl.api}/assign-branch?branchId=${branchId}&userId=${userId}`,{
+            const response = await fetch(`${baseUrl.api}/assign-branch?branchId=${branchId}&userId=${userId}`, {
                 method: "PUT"
             });
-            
+
             const responseData = await processResponseData(response)
-            if(!response.ok) throw new Error(responseData.msg)
+            if (!response.ok) throw new Error(responseData.msg)
             await getUsers()
             message.success(responseData.msg)
             return true
@@ -441,14 +441,14 @@ export const AppContextProvider = ({ children }) => {
 
     const [clientDebts, setClientDebts] = useState([])
     const [clientMoneyDelivers, setClientMoneyDelivers] = useState([])
-    const getClientAccount = async(clientId, branchId) => {
-        if(!loginUserData?.sucursal_id) return notification.info({message: "Aún estamos cargando tus datos, espere unos segundos e intente nuevamente."})
+    const getClientAccount = async (clientId, branchId) => {
+        if (!loginUserData?.sucursal_id) return notification.info({ message: "Aún estamos cargando tus datos, espere unos segundos e intente nuevamente." })
 
         try {
             const response = await fetch(`${baseUrl.api}/get-client-account?clientId=${clientId}&branchId=${branchId || loginUserData.sucursal_id}`);
             const responseData = await processResponseData(response)
-            if(response.status === 404) return notification.info({message: responseData.msg})
-            if(!response.ok) throw new Error(responseData.msg)
+            if (response.status === 404) return notification.info({ message: responseData.msg })
+            if (!response.ok) throw new Error(responseData.msg)
             setClientDebts(responseData.debts)
             setClientMoneyDelivers(responseData.delivers)
             message.success(`${responseData.msg}`)
@@ -457,6 +457,30 @@ export const AppContextProvider = ({ children }) => {
             console.log(error)
             notification.error({
                 message: "Error al obtener la cuenta del cliente",
+                description: error.message,
+                duration: 5,
+                showProgress: true,
+                pauseOnHover: false
+            })
+            return false
+        }
+    }
+
+    const saveDebt = async(debtValues) => {
+        try {
+            const response = await fetch(`${baseUrl.api}/save-debt`, {
+                method: "POST",
+                body: debtValues
+            })
+
+            const responseData = await processResponseData(response)
+            if (!response.ok) throw new Error(responseData.msg)
+            message.success(`${responseData.msg}`)
+            return true
+        } catch (error) {
+            console.log(error)
+            notification.error({
+                message: "Error al guardar la deuda",
                 description: error.message,
                 duration: 5,
                 showProgress: true,
@@ -482,6 +506,16 @@ export const AppContextProvider = ({ children }) => {
             await verifyAuthUser()
         })()
     }, [])
+
+    const [state, setState] = useState({
+        branchID: "",
+        clientID: "",
+        branchName: "",
+        adminID: "",
+        userID: ""
+    })
+
+    
     return (
         <AppContext.Provider
             value={{
@@ -489,8 +523,9 @@ export const AppContextProvider = ({ children }) => {
                 verifyAuthUser, saveBranch, retryCountDown, serverWithDelay,
                 getAllBranches, sucursales, deleteBranch,
                 saveClient, getClients, clients,
-                deletClient, getUsers, adminUsers,saveUser,
-                assignBranch, getClientAccount, clientDebts, clientMoneyDelivers
+                deletClient, getUsers, adminUsers, saveUser,
+                assignBranch, getClientAccount, clientDebts, clientMoneyDelivers,
+                setState, state, saveDebt
             }}
         >
             {children}
