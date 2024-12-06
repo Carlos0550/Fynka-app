@@ -92,18 +92,18 @@ function Register({ changeOption }) {
                 <form id="form-register-wrapper" onSubmit={sendValues}>
                     <h3>Registrarme en Fynka</h3>
                     <label htmlFor="email" className='register-label'>Correo:
-                        <input type="email" id='email' name='email' placeholder='Ingresá tu correo' value={values.email} onChange={onChangeValues} />
+                        <input type="email" autoComplete='off' id='email' name='email' placeholder='Ingresá tu correo' value={values.email} onChange={onChangeValues} />
                     </label>
                     <label htmlFor="email" className='register-label'>Nombre completo:
-                        <input type="text" id='username' name='username' placeholder='Ingresá tu nombre' value={values.username} onChange={onChangeValues} />
+                        <input type="text" autoComplete='off' id='username' name='username' placeholder='Ingresá tu nombre' value={values.username} onChange={onChangeValues} />
                     </label>
 
                     <label htmlFor="email" className='register-label'>DNI:
-                        <input type="text" id='userdni' name='userdni' placeholder='Ingresá tu DNI' value={values.userdni} onChange={onChangeValues} />
+                        <input type="text" autoComplete='off' id='userdni' name='userdni' placeholder='Ingresá tu DNI' value={values.userdni} onChange={onChangeValues} />
                     </label>
 
                     <label htmlFor="email" className='register-label password'>Contraseña:
-                        <input type={showPassword ? "text" : "password"} id='psw' name='psw' placeholder='Ingresá tu contraseña' value={values.psw} onChange={onChangeValues} />
+                        <input type={showPassword ? "text" : "password"} id='psw' autoComplete='off' name='psw' placeholder='Ingresá tu contraseña' value={values.psw} onChange={onChangeValues} />
                         <span className="showPswRegister" onClick={toggleShowPassword}>
                                 {showPassword ? <CloseEye /> : <OpenEye />}
                             </span>
@@ -111,7 +111,7 @@ function Register({ changeOption }) {
                     
                     <button id='secure-psw-btn' type='button' onClick={() => GeneratePassword()}>Generar contraseña segura</button>
                     <label htmlFor="email" className='register-label'>Una vez más:
-                        <input type={showPassword ? "text" : "password"} id='double_psw' name='double_psw' placeholder='Ingresá tu contraseña una vez más' value={values.double_psw} onChange={onChangeValues} />
+                        <input type={showPassword ? "text" : "password"} id='double_psw'  autoComplete='off' name='double_psw' placeholder='Ingresá tu contraseña una vez más' value={values.double_psw} onChange={onChangeValues} />
                     </label>
                     <div className="form-buttons__wrapper">
                         <button id='btn-register' type='submit' disabled={sendingValues}>{sendingValues ? "Registrando..." : "Registrarme"}</button>
