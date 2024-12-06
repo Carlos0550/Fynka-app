@@ -3,7 +3,7 @@ import Layout from '../../../components/Layout/Layout';
 import { useAppContext } from '../../../AppContext';
 import { useParams } from 'react-router-dom';
 import { CapitaliceStrings } from '../../../utils/CapitaliceStrings';
-import { Space, Spin, Switch } from 'antd';
+import { Col, Row, Space, Spin, Statistic, Switch } from 'antd';
 import RenderTable from './RenderTable';
 
 import { ReloadOutlined } from "@ant-design/icons"
@@ -42,16 +42,24 @@ function AccountManager() {
         <h3>Cuenta de {CapitaliceStrings(clientName)} en {CapitaliceStrings(state.branchName)}</h3>
         
       <Space>
-      <p>¿Que deseas visualizar? </p>
+          
+
+        </Space>
+        <Row gutter={[16, 16]}>
+          <Col lg={12} xs={24}>
+          <p>¿Que deseas visualizar? </p>
           <Switch 
             defaultChecked={2}
             unCheckedChildren="Entregas" 
             checkedChildren="Deudas" 
             onChange={(checked) => setTableShow(checked ? 1 : 2)} 
           />
-
-        </Space>
-        <button className='btn-add' style={{margin: "1rem"}} disabled={gettingAccount} onClick={()=> getClientAccount(clientId, selectedBranch)}>{gettingAccount ? <Spin/> : <> <ReloadOutlined /> Recargar vista</>}</button>
+            <button className='btn-add' style={{marginTop: "1rem"}} disabled={gettingAccount} onClick={()=> getClientAccount(clientId, selectedBranch)}>{gettingAccount ? <Spin/> : <> <ReloadOutlined /> Recargar vista</>}</button>
+          </Col>
+          <Col lg={12} xs={24}>
+          <Statistic title="Saldo total"/>
+          </Col>
+        </Row>
         <RenderTable tableId={tableShow}/>
       </React.Fragment>
     )
