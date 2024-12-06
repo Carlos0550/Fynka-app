@@ -120,13 +120,12 @@ export const AppContextProvider = ({ children }) => {
     const [alreadyShownMessage, setAlreadyShownMessage] = useState(false);
     const [doNotVerify, setDoNotVerify] = useState(false);
     const verifyAuthUser = async () => {
-        console.log("Ejecuta verifyAuthUser")
         try {
             const userData = localStorage.getItem("userdata");
 
             if (!userData) {
                 setDoNotVerify(true);
-                throw new Error("Su sesión no es válida. Por favor, inicie sesión nuevamente.");
+                return;
             }
 
             const parseData = JSON.parse(userData);
@@ -441,9 +440,10 @@ export const AppContextProvider = ({ children }) => {
 
     const [clientDebts, setClientDebts] = useState([])
     const [clientMoneyDelivers, setClientMoneyDelivers] = useState([])
+    const [gettingAccount, setGettingAccount] = useState(false)
     const getClientAccount = async (clientId, branchId) => {
         if (!loginUserData?.sucursal_id) return notification.info({ message: "Aún estamos cargando tus datos, espere unos segundos e intente nuevamente." })
-
+            setGettingAccount(true)
         try {
             const response = await fetch(`${baseUrl.api}/get-client-account?clientId=${clientId}&branchId=${branchId || loginUserData.sucursal_id}`);
             const responseData = await processResponseData(response)
@@ -463,6 +463,10 @@ export const AppContextProvider = ({ children }) => {
                 pauseOnHover: false
             })
             return false
+        }finally{
+            setTimeout(() => {
+                setGettingAccount(false)
+            }, 1000);
         }
     }
 
@@ -525,7 +529,7 @@ export const AppContextProvider = ({ children }) => {
                 saveClient, getClients, clients,
                 deletClient, getUsers, adminUsers, saveUser,
                 assignBranch, getClientAccount, clientDebts, clientMoneyDelivers,
-                setState, state, saveDebt
+                setState, state, saveDebt, gettingAccount
             }}
         >
             {children}

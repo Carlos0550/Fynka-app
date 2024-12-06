@@ -9,7 +9,7 @@ function EditBranches({branchId, closeModal}) {
     async function onFinish (params) {
         const formData = new FormData()
         for (const key in params) {
-            formData.append(key, params[key])
+            formData.append(key, params[key] === "" ? "" : params[key])
         }
 
         formData.append("editing", true)

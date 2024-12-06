@@ -3,11 +3,12 @@ import Layout from '../../../components/Layout/Layout';
 import { useAppContext } from '../../../AppContext';
 import { useParams } from 'react-router-dom';
 import { CapitaliceStrings } from '../../../utils/CapitaliceStrings';
-import { Space, Switch } from 'antd';
+import { Space, Spin, Switch } from 'antd';
 import RenderTable from './RenderTable';
 
+import { ReloadOutlined } from "@ant-design/icons"
 function AccountManager() {
-  const { loginUserData, getClientAccount,clients, sucursales, getAllBranches, setState, state } = useAppContext();
+  const { loginUserData, getClientAccount,clients, sucursales, getAllBranches, setState, state, gettingAccount } = useAppContext();
   const { clientId } = useParams();
   const [selectedBranch, setSelectedBranch] = useState(null);
   const [tableShow, setTableShow] = useState(1);
@@ -50,7 +51,7 @@ function AccountManager() {
           />
 
         </Space>
-        <button className='btn-add' style={{margin: "1rem"}}>Recargar vista</button>
+        <button className='btn-add' style={{margin: "1rem"}} disabled={gettingAccount} onClick={()=> getClientAccount(clientId, selectedBranch)}>{gettingAccount ? <Spin/> : <> <ReloadOutlined /> Recargar vista</>}</button>
         <RenderTable tableId={tableShow}/>
       </React.Fragment>
     )

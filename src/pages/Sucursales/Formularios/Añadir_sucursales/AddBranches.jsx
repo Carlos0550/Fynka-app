@@ -31,7 +31,7 @@ function AddOrEditBranches({closeModal}) {
         }
 
         for (const key in params) {
-            formData.append(key, params[key])
+            formData.append(key, params[key] === "" ? "" : params[key])
         }
         formData.append("editing", false)
         formData.append("userid", loginUserData?.id)
