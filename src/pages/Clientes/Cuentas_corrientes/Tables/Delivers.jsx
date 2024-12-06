@@ -1,17 +1,23 @@
-import { Table } from 'antd'
+import { Button, Table } from 'antd'
 import React from 'react'
+import ShowAccountsForms from '../Modales/ShowAccountsForms'
 
-function Delivers({branches, clientId, delivers}) {
+function Delivers({ openModal, setOpenmodal }) {
   return (
-    <Table
-    locale={{
-      emptyText: (
-        <p>No hay entregas que mostrar</p>
-      )
-    }}
-    >
+    <React.Fragment>
+      <Table
+        locale={{
+          emptyText: (
+            <React.Fragment>
+              <p><strong>No hay entregas que mostrar</strong></p>
+              <Button type='primary' onClick={()=> setOpenmodal(true)}>Agregar una entrega</Button>
+            </React.Fragment>
+          )
+        }}
+      />
 
-    </Table>
+      {openModal && <ShowAccountsForms closeModal={()=> setOpenmodal(false)} actionType={2}/>}
+    </React.Fragment>
   )
 }
 
