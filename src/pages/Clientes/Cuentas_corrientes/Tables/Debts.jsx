@@ -1,11 +1,11 @@
-import { Button, Table } from 'antd'
+import { Button, Space, Table } from 'antd'
 import React, { useState } from 'react'
 import ShowAccountsForms from '../Modales/ShowAccountsForms'
 import { useAppContext } from '../../../../AppContext'
 import { processData } from './processData'
 import dayjs from 'dayjs'
-function Debts() {
-  const [openModal, setOpenmodal] = useState(false)
+import { DeleteOutlined, EditOutlined } from '@ant-design/icons'
+function Debts({openModal, setOpenmodal}) {
   const { gettingAccount, clientDebts } = useAppContext()
   const handleOpenModal = () => {
     setOpenmodal(true)
@@ -38,11 +38,24 @@ function Debts() {
     },
     {
       title: "Detalles Adicionales",
+      dataIndex: "descripcion"
     },
     {
       title: "Monto total",
       render: (_,record) => (
         <strong>{parseFloat(record.monto_total).toLocaleString("es-AR",{style:"currency", "currency": "ARS"})}</strong>
+      )
+    },
+    {
+      title: "Añadido por",
+      dataIndex: "responsable"
+    },
+    {
+      render:(_,record) => (
+        <Space direction='vertical'>
+          <Button type='primary' icon={<EditOutlined/>}/>
+          <Button type='primary' danger icon={<DeleteOutlined/>}/>
+        </Space>
       )
     }
   ]
