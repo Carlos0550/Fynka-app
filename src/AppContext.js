@@ -440,6 +440,7 @@ export const AppContextProvider = ({ children }) => {
 
     const [clientDebts, setClientDebts] = useState([])
     const [clientMoneyDelivers, setClientMoneyDelivers] = useState([])
+    const [totalAccount, setTotalAccount] = useState(0)
     const [gettingAccount, setGettingAccount] = useState(false)
     const getClientAccount = async (clientId, branchId) => {
         if (!loginUserData?.sucursal_id) return notification.info({ message: "Aún estamos cargando tus datos, espere unos segundos e intente nuevamente." })
@@ -451,6 +452,7 @@ export const AppContextProvider = ({ children }) => {
             if (!response.ok) throw new Error(responseData.msg)
             setClientDebts(responseData.debts)
             setClientMoneyDelivers(responseData.delivers)
+            setTotalAccount(responseData.totalAccount)
             message.success(`${responseData.msg}`)
             return true
         } catch (error) {
@@ -485,6 +487,31 @@ export const AppContextProvider = ({ children }) => {
             console.log(error)
             notification.error({
                 message: "Error al guardar la deuda",
+                description: error.message,
+                duration: 5,
+                showProgress: true,
+                pauseOnHover: false
+            })
+            return false
+        }
+    }
+
+    const saveDeliver = async(deliverValues) => {
+        console.log(deliverValues)
+        try {
+            const response = await fetch(`${baseUrl.api}/save-deliver`, {
+                method: "POST",
+                body: deliverValues
+            })
+
+            const responseData = await processResponseData(response)
+            if (!response.ok) throw new Error(responseData.msg)
+            message.success(`${responseData.msg}`)
+            return true
+        } catch (error) {
+            console.log(error)
+            notification.error({
+                message: "Error al guardar la entrega",
                 description: error.message,
                 duration: 5,
                 showProgress: true,
@@ -529,7 +556,8 @@ export const AppContextProvider = ({ children }) => {
                 saveClient, getClients, clients,
                 deletClient, getUsers, adminUsers, saveUser,
                 assignBranch, getClientAccount, clientDebts, clientMoneyDelivers,
-                setState, state, saveDebt, gettingAccount
+                setState, state, saveDebt, gettingAccount,
+                saveDeliver, totalAccount
             }}
         >
             {children}
