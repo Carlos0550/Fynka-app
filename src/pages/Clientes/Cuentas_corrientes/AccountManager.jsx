@@ -8,7 +8,7 @@ import RenderTable from './RenderTable';
 
 import { ReloadOutlined } from "@ant-design/icons"
 function AccountManager() {
-  const { loginUserData, getClientAccount,clients, sucursales, getAllBranches, setState, state, gettingAccount } = useAppContext();
+  const { loginUserData, getClientAccount,clients, sucursales, getAllBranches, setState, state, gettingAccount, totalAccount } = useAppContext();
   const { clientId } = useParams();
   const [selectedBranch, setSelectedBranch] = useState(null);
   const [tableShow, setTableShow] = useState(1);
@@ -33,7 +33,7 @@ function AccountManager() {
       await getClientAccount(clientId, selectedBranch)
     })()
   }, []);
-
+console.log(totalAccount)
   
   function RenderAccountManager() {
     const clientName = clients.find(client => client.id === clientId)?.nombre
@@ -57,7 +57,7 @@ function AccountManager() {
             <button className='btn-add' style={{marginTop: "1rem"}} disabled={gettingAccount} onClick={()=> getClientAccount(clientId, selectedBranch)}>{gettingAccount ? <Spin/> : <> <ReloadOutlined /> Recargar vista</>}</button>
           </Col>
           <Col lg={12} xs={24}>
-          <Statistic title="Saldo total"/>
+          <Statistic title="Saldo total" value={totalAccount}/>
           </Col>
         </Row>
         <RenderTable tableId={tableShow}/>

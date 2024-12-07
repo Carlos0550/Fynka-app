@@ -6,7 +6,7 @@ import { useAppContext } from '../../../../AppContext';
 import dayjs from 'dayjs';
 
 function AddDebt({closeModal}) {
-    const { state, saveDebt } = useAppContext()
+    const { state, saveDebt, getClientAccount } = useAppContext()
     const [debtDate, setDebtDate] = useState(null)
     const [savingValues, setSavingValues] = useState(false)
     const onFinish = async(values) => {
@@ -25,6 +25,7 @@ function AddDebt({closeModal}) {
         console.log(formData)
         await saveDebt(formData)
         setSavingValues(false)
+        await getClientAccount(state.clientID, state.branchID)
         closeModal()
         
     };

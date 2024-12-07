@@ -10,7 +10,6 @@ function Debts({openModal, setOpenmodal}) {
   const handleOpenModal = () => {
     setOpenmodal(true)
   }
-  console.log(clientDebts)
   const tableColumns =  [
     {
       title: "Fecha de compra",
