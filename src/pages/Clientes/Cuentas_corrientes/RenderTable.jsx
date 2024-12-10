@@ -2,28 +2,29 @@ import React, { useState } from 'react'
 import Debts from './Tables/Debts'
 import Delivers from './Tables/Delivers'
 import { Button, Empty } from 'antd'
+
+import { useAppContext } from "../../../AppContext.js"
 function RenderTable({tableId}) {
-    const [openDebtModal, setOpenDebtmodal] = useState(false)
-    const [openDeliverModal, setOpenDeliverModal] = useState(false)
+    const { handlerDebts } = useAppContext()
     function RenderTable() {
         switch (parseInt(tableId)) {
             case 1:
                 
                 return(
                     <React.Fragment>
-                        <Button onClick={()=> setOpenDebtmodal(true)} style={{marginTop: "1rem"}}>
+                        <Button onClick={()=> handlerDebts(null, 1, false, true, false)} style={{marginTop: "1rem"}}>
                             Agregar deuda
                         </Button>
-                        <Debts openModal={openDebtModal} setOpenmodal={setOpenDebtmodal}/>
+                        <Debts />
                     </React.Fragment>
                 )
             case 2: 
                 return(
                     <React.Fragment>
-                        <Button onClick={()=> setOpenDeliverModal(true)} style={{marginTop: "1rem"}}>
+                        <Button onClick={()=> handlerDebts(null, 2, false, true, false)} style={{marginTop: "1rem"}}>
                             Agregar entrega
                         </Button>
-                        <Delivers openModal={openDeliverModal} setOpenmodal={setOpenDeliverModal}/>
+                        <Delivers />
                     </React.Fragment>
                 )
             default:

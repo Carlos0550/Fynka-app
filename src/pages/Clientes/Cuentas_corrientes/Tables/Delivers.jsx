@@ -5,8 +5,8 @@ import { useAppContext } from '../../../../AppContext'
 import dayjs from 'dayjs'
 import { DeleteOutlined, EditOutlined } from '@ant-design/icons'
 
-function Delivers({ openModal, setOpenmodal }) {
-  const { clientMoneyDelivers, gettingAccount } = useAppContext()
+function Delivers() {
+  const { clientMoneyDelivers, gettingAccount, handlerDebts, openFormsDebtsModal } = useAppContext()
 
   const tableColumns = [
     {
@@ -37,7 +37,7 @@ function Delivers({ openModal, setOpenmodal }) {
           emptyText: (
             <React.Fragment>
               <p><strong>No hay entregas que mostrar</strong></p>
-              <Button type='primary' onClick={()=> setOpenmodal(true)}>Agregar una entrega</Button>
+              <Button type='primary' onClick={()=> handlerDebts(null, 2, false, true, false)}>Agregar una entrega</Button>
             </React.Fragment>
           )
         }}
@@ -47,7 +47,7 @@ function Delivers({ openModal, setOpenmodal }) {
         dataSource={clientMoneyDelivers}
       />
 
-      {openModal && <ShowAccountsForms closeModal={()=> setOpenmodal(false)} actionType={2}/>}
+      {openFormsDebtsModal && <ShowAccountsForms closeModal={()=> handlerDebts()}/>}
     </React.Fragment>
   )
 }

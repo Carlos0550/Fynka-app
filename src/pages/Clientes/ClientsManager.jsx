@@ -39,27 +39,25 @@ function ClientsManager() {
         },
         {
             render: (_, record) => (
-                <Space direction='vertical'>
+                <Space>
                     <Button icon={<IdcardOutlined />} onClick={()=> navigate(`/clientes/cuentas-corrientes/${record.id}`)}>Ver cuenta</Button>
-                    <Space> <Button icon={<EditOutlined/>} onClick={()=>{
-                        toggleModal(2, record.id)
-                    }}/>  
                     <Button icon={<DeleteOutlined/>} type='primary' danger onClick={()=>{
                         toggleModal(3, record.id)
-                    }}/></Space>
+                    }}/>
                 </Space>
             )
         }
-    ]
+    ];
 
     const RenderClientManager = () => {
         return (
             <React.Fragment>
                 <h1>Clientes</h1>
                 <p>Gestiona aqui tus clientes</p>
-                <Button icon={<ReloadOutlined />} style={{ marginTop: ".5rem", marginBottom: ".5rem" }} onClick={() => {
+                <Button icon={<ReloadOutlined />} style={{ marginTop: ".5rem", marginBottom: ".5rem" }} onClick={async() => {
                     message.loading("Obteniendo clientes...")
-                    getClients()
+                    await getClients()
+                    message.success("Clientes recargados")
                 }}>Recargar</Button>
                 <div id="buttons-box">
                     <Search className='btn-search-client' />

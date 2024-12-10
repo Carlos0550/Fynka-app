@@ -33,7 +33,6 @@ function AccountManager() {
       await getClientAccount(clientId, selectedBranch)
     })()
   }, []);
-console.log(totalAccount)
   
   function RenderAccountManager() {
     const clientName = clients.find(client => client.id === clientId)?.nombre

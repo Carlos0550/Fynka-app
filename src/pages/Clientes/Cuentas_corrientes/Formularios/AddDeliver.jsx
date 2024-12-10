@@ -14,7 +14,6 @@ function AddDeliver({ closeModal }) {
     formData.append("userID", state.userID || "")
     formData.append("deliverDate", dayjs(deliverDate).format("YYYY-MM-DD"))
     formData.append("deliverAmount", values.deliverAmount)
-    formData.append("editing", false)
     console.log(formData)
     const result = await saveDeliver(formData)
     if (result) {

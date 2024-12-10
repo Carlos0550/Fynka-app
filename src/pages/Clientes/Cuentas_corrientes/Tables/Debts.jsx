@@ -5,11 +5,11 @@ import { useAppContext } from '../../../../AppContext'
 import { processData } from './processData'
 import dayjs from 'dayjs'
 import { DeleteOutlined, EditOutlined } from '@ant-design/icons'
+import ShowAlerts from '../Modales/ShowAlerts'
 function Debts({openModal, setOpenmodal}) {
-  const { gettingAccount, clientDebts } = useAppContext()
-  const handleOpenModal = () => {
-    setOpenmodal(true)
-  }
+
+  const { gettingAccount, clientDebts, handlerDebts, debtId, action, openFormsDebtsModal, showAlertsDebtsModal  } = useAppContext()
+
   const tableColumns =  [
     {
       title: "Fecha de compra",
@@ -28,7 +28,7 @@ function Debts({openModal, setOpenmodal}) {
           <React.Fragment>
             <ul>
               {products.map(product => (
-                <li>{product.quantity} {product.name} {parseFloat(product.price).toLocaleString("es-AR",{style:"currency", "currency": "ARS"})}</li>
+                <li>{product.quantity} {product.name} {parseFloat(product.price).toLocaleString("es-AR",{style:"currency", "currency": "ARS"})} c/u</li>
               ))}
             </ul>
           </React.Fragment>
@@ -52,8 +52,12 @@ function Debts({openModal, setOpenmodal}) {
     {
       render:(_,record) => (
         <Space direction='vertical'>
-          <Button type='primary' icon={<EditOutlined/>}/>
-          <Button type='primary' danger icon={<DeleteOutlined/>}/>
+          <Button type='primary' icon={<EditOutlined/>} onClick={()=> {
+            handlerDebts(record.id, 3, true, true, false)
+          }}/>
+          <Button type='primary' danger icon={<DeleteOutlined/>} onClick={()=> {
+            handlerDebts(record.id, 1, false, false, true)
+          }}/>
         </Space>
       )
     }
@@ -68,7 +72,7 @@ function Debts({openModal, setOpenmodal}) {
         emptyText: (
           <>
             <p><strong>No hay deudas que mostrar</strong></p>
-            <Button type='primary' style={{ marginTop: ".5rem" }} onClick={()=> handleOpenModal()}>Agregar una deuda</Button>
+            <Button type='primary' style={{ marginTop: ".5rem" }} onClick={()=> handlerDebts(null, 1, false, true, false)}>Agregar una deuda</Button>
           </>
         )
       }}
@@ -77,12 +81,15 @@ function Debts({openModal, setOpenmodal}) {
       dataSource={clientDebts}
     >
     </Table>
-    {openModal && 
+    {openFormsDebtsModal && 
     <ShowAccountsForms 
-      closeModal={() => setOpenmodal(false)} 
-      actionType={1}/>
+      closeModal={() => handlerDebts()} 
+      />
     }
-
+  {showAlertsDebtsModal && 
+  <ShowAlerts 
+    closeModal={() => handlerDebts()} 
+  />}
     </React.Fragment>
   )
 }
