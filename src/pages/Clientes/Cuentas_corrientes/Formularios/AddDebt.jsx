@@ -1,14 +1,19 @@
 import { Button, DatePicker, Form } from 'antd';
 import TextArea from 'antd/es/input/TextArea';
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { SeparateProducts } from '../../../../utils/SeparateProducts';
 import { useAppContext } from '../../../../AppContext';
 import dayjs from 'dayjs';
+import { processData } from '../Tables/processData';
 
 function AddDebt({closeModal}) {
-    const { state, saveDebt, getClientAccount } = useAppContext()
+
+    const { state, saveDebt, getClientAccount, clientDebts, editDebt, debtId, editingDebt } = useAppContext()
+
     const [debtDate, setDebtDate] = useState(null)
     const [savingValues, setSavingValues] = useState(false)
+    const [form] = Form.useForm()
+    console.log("EDITANDO?", editingDebt)
     const onFinish = async(values) => {
         setSavingValues(true)
         const formData = new FormData()
@@ -20,20 +25,42 @@ function AddDebt({closeModal}) {
         formData.append("adminID", state.adminID)
         formData.append("userID", state.userID)
         formData.append("debtAmount", debtAmount)
-        formData.append("editing", false)
         formData.append("productDetails", values.debtDetails || "Sin descripción")
-        console.log(formData)
-        await saveDebt(formData)
+
+        if(editingDebt){
+            const debt = clientDebts.find(debt => debt.id === debtId)
+            formData.append("oldDescriptionId", debt.descripcion_id)
+        }
+
+        editingDebt ? await editDebt(formData, debtId) : await saveDebt(formData)
         setSavingValues(false)
         await getClientAccount(state.clientID, state.branchID)
         closeModal()
-        
     };
+
+    useEffect(()=>{
+        if(editingDebt && debtId){
+            const debt = clientDebts.find(debt => debt.id === debtId)
+            const products = processData(debt.detalle_productos)
+  
+            const individualDebts = products.map(product => 
+                `${product.quantity} ${product.name} ${product.price}`
+            ).join("\n");
+            
+            form.setFieldsValue({
+                debtProducts: individualDebts,
+                debtDetails: debt.descripcion,
+                debtDate: dayjs(debt.fecha_compra)
+            })
+            setDebtDate(dayjs(debt.fecha_compra))
+        }
+    },[editingDebt, debtId])
     return (
         <Form
             name='debtForm'
             layout='vertical'
             onFinish={onFinish}
+            form={form}
         >
             <Button style={{ marginBottom: "20px" }}>Seleccion rápida</Button>
             <Form.Item
