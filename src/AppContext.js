@@ -291,7 +291,6 @@ export const AppContextProvider = ({ children }) => {
             const responseData = await processResponseData(response)
             if (response.status === 404) return notification.info({ message: responseData.msg })
             if (!response.ok) throw new Error(responseData.msg)
-            console.log(responseData)
             setClients(responseData.clients)
             return true
         } catch (error) {
@@ -446,14 +445,22 @@ export const AppContextProvider = ({ children }) => {
         if (!loginUserData?.sucursal_id) return notification.info({ message: "Aún estamos cargando tus datos, espere unos segundos e intente nuevamente." })
             setGettingAccount(true)
         try {
-            const response = await fetch(`${baseUrl.api}/get-client-account?clientId=${clientId}&branchId=${branchId || loginUserData.sucursal_id}`);
+            const response = await fetch(`${baseUrl.api}/clients/get-client-account?clientId=${clientId}&branchId=${branchId || loginUserData.sucursal_id}`);
             const responseData = await processResponseData(response)
-            if (response.status === 404) return notification.info({ message: responseData.msg })
+            if (response.status === 404){
+
+                setClientDebts([])
+                setClientMoneyDelivers([])
+                setTotalAccount(0)
+
+                return notification.info({ message: responseData.msg })
+            }
+
             if (!response.ok) throw new Error(responseData.msg)
+                
             setClientDebts(responseData.debts)
             setClientMoneyDelivers(responseData.delivers)
             setTotalAccount(responseData.totalAccount)
-            message.success(`${responseData.msg}`)
             return true
         } catch (error) {
             console.log(error)
@@ -499,7 +506,7 @@ export const AppContextProvider = ({ children }) => {
     const saveDeliver = async(deliverValues) => {
         console.log(deliverValues)
         try {
-            const response = await fetch(`${baseUrl.api}/save-deliver`, {
+            const response = await fetch(`${baseUrl.api}/clients/save-deliver`, {
                 method: "POST",
                 body: deliverValues
             })
@@ -519,6 +526,62 @@ export const AppContextProvider = ({ children }) => {
             })
             return false
         }
+    }
+
+    const deleteDebt = async(debtID) => {
+        try {
+            const response = await fetch(`${baseUrl.api}/clients/delete-debt/${debtID}`, {
+                method: "DELETE"
+            })
+            const responseData = await processResponseData(response)
+            if (!response.ok) throw new Error(responseData.msg)
+            return true
+        } catch (error) {
+            console.log(error)
+            notification.error({
+                message: "Error al eliminar la deuda",
+                description: error.message,
+                duration: 5,
+                showProgress: true,
+                pauseOnHover: false
+            })
+            return false
+        }
+    }
+
+    const editDebt = async(debtValues,debtToEdit) => {
+        try {
+            const response = await fetch(`${baseUrl.api}/clients/edit-debt/${debtToEdit}`, {
+                method: "PUT",
+                body: debtValues
+            })
+            const responseData = await processResponseData(response)
+            if (!response.ok) throw new Error(responseData.msg)
+            return true
+        } catch (error) {
+            console.log(error)
+            notification.error({
+                message: "Error al editar la deuda",
+                description: error.message,
+                duration: 5,
+                showProgress: true,
+                pauseOnHover: false
+            })
+            return false
+        }
+    }
+
+    const [debtId, setDebtId] = useState(null)
+    const [action, setAction] = useState(null)
+    const [editingDebt, setEditing] = useState(false)
+    const [openFormsDebtsModal, setOpenFormsDebtsModal] = useState(false)
+    const [showAlertsDebtsModal, setShowAlertsDebtsModal] = useState(false)
+    const handlerDebts = (debtId = null, action = null, editing = false, isForm = false, isAlert = false) => {
+        setDebtId(debtId)
+        setAction(action)
+        setEditing(editing)
+        setOpenFormsDebtsModal(isForm)
+        setShowAlertsDebtsModal(isAlert)
     }
 
     useEffect(() => {
@@ -546,7 +609,15 @@ export const AppContextProvider = ({ children }) => {
         userID: ""
     })
 
-    
+    useEffect(()=>{
+        console.log(
+            "debtId: ", debtId,
+            "action: ", action,
+            "editingDebt: ", editingDebt,
+            "openFormsDebtsModal: ", openFormsDebtsModal,
+            "showAlertsDebtsModal: ", showAlertsDebtsModal
+        )
+    },[debtId, action, editingDebt, openFormsDebtsModal, showAlertsDebtsModal])
     return (
         <AppContext.Provider
             value={{
@@ -557,7 +628,8 @@ export const AppContextProvider = ({ children }) => {
                 deletClient, getUsers, adminUsers, saveUser,
                 assignBranch, getClientAccount, clientDebts, clientMoneyDelivers,
                 setState, state, saveDebt, gettingAccount,
-                saveDeliver, totalAccount
+                saveDeliver, totalAccount, deleteDebt, editDebt,
+                handlerDebts, debtId, action, editingDebt, openFormsDebtsModal, showAlertsDebtsModal
             }}
         >
             {children}
